@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 
 import static yeamy.restlite.httpclient.apt.Utils.*;
 
-public class SourceMethod extends SourceFile {
+class SourceMethod extends SourceFile {
 
     public SourceMethod(ProcessingEnvironment env, TypeElement type, HttpClient template) {
         super(env, type, template);
@@ -183,6 +183,9 @@ public class SourceMethod extends SourceFile {
         String pName = body.value();
         if (isParam(pName)) {
             pName = getParamName(pName);
+        } else {
+            bodyString(content, "\"" + pName.replace("\"", "\\\"") + '"', body.contentType());
+            return;
         }
         VariableElement e = params.get(pName);
         if (e == null) {
@@ -194,25 +197,19 @@ public class SourceMethod extends SourceFile {
         String contentType = body.contentType();
         switch (e.asType().toString()) {
             case "java.lang.String": {
-                content.append("req.setEntity(new ").append(imports("org.apache.hc.core5.http.io.entity.StringEntity"))
-                        .append('(').append(pName);
-                if (contentType.length() > 0) {
-                    content.append(',').append(imports("org.apache.hc.core5.http.ContentType"))
-                            .append(".create(\"").append(contentType).append("\")");
-                }
-                content.append("));");
+                bodyString(content, pName, contentType);
                 break;
             }
             case "byte[]": {
-                body(content, "org.apache.hc.core5.http.io.entity.ByteArrayEntity", pName, contentType);
+                bodyBinary(content, "org.apache.hc.core5.http.io.entity.ByteArrayEntity", pName, contentType);
                 break;
             }
             case "java.io.File": {
-                body(content, "org.apache.hc.core5.http.io.entity.FileEntity", pName, contentType);
+                bodyBinary(content, "org.apache.hc.core5.http.io.entity.FileEntity", pName, contentType);
                 break;
             }
             case "java.io.InputStream": {
-                body(content, "org.apache.hc.core5.http.io.entity.InputStreamEntity", pName, contentType);
+                bodyBinary(content, "org.apache.hc.core5.http.io.entity.InputStreamEntity", pName, contentType);
             }
             break;
             default:
@@ -228,11 +225,21 @@ public class SourceMethod extends SourceFile {
         }
     }
 
-    private void body(StringBuilder content, String entity, String pName, String contentType) {
+    private void bodyString(StringBuilder content, String pName, String contentType) {
+        content.append("req.setEntity(new ").append(imports("org.apache.hc.core5.http.io.entity.StringEntity"))
+                .append('(').append(pName);
+        if (contentType.length() > 0) {
+            content.append(',').append(imports("org.apache.hc.core5.http.ContentType"))
+                    .append(".create(\"").append(contentType).append("\")");
+        }
+        content.append("));");
+    }
+
+    private void bodyBinary(StringBuilder content, String entity, String pName, String contentType) {
         content.append("req.setEntity(new ").append(imports(entity)).append('(').append(pName)
                 .append(',').append(imports("org.apache.hc.core5.http.ContentType"));
         if (contentType.length() == 0) {
-            content.append(".WILDCARD").append(')');
+            content.append(".DEFAULT_BINARY").append(')');
         } else {
             content.append(".create(\"").append(contentType).append("\")");
         }
@@ -241,7 +248,9 @@ public class SourceMethod extends SourceFile {
 
     private void multiPart(StringBuilder content, HttpClientRequest req, PartValues[] parts, String method,
                            LinkedHashMap<String, VariableElement> params) {
-        content.append("req.setEntity(MultipartEntityBuilder.create()");
+        content.append("req.setEntity(")
+                .append(imports("org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder"))
+                .append(".create()");
         for (PartValues part : parts) {
             multiPart(content, req, part, method, params);
         }
@@ -253,6 +262,9 @@ public class SourceMethod extends SourceFile {
         String pName = part.value();
         if (isParam(pName)) {
             pName = getParamName(pName);
+        } else {
+            multiPartString(content, "\"" + pName.replace("\"", "\\\"") + '\"', part);
+            return;
         }
         VariableElement e = params.get(pName);
         if (e == null) {
@@ -264,22 +276,21 @@ public class SourceMethod extends SourceFile {
         String contentType = part.contentType();
         switch (e.asType().toString()) {
             case "java.lang.String": {
-                content.append(".addTextBody(\"").append(part.name()).append("\", ").append(pName);
-                if (part.contentType().length() > 0) {
-                    content.append(", ").append(imports("org.apache.hc.core5.http.ContentType"))
-                            .append(".create(\"").append(part.contentType()).append("\")");
-                }
-                content.append(")");
+                multiPartString(content, pName, part);
                 break;
             }
             case "byte[]":
             case "java.io.File":
             case "java.io.InputStream": {
                 content.append(".addBinaryBody(\"").append(part.name()).append("\", ").append(pName);
-                if (part.contentType().length() > 0 && part.filename().length() > 0) {
-                    content.append(", ").append(imports("org.apache.hc.core5.http.ContentType"))
-                            .append(".create(\"").append(part.contentType()).append("\"),\"")
-                            .append(part.filename()).append('"');
+                if (part.filename().length() > 0 || contentType.length() > 0) {
+                    content.append(", ").append(imports("org.apache.hc.core5.http.ContentType"));
+                    if (contentType.length() > 0) {
+                        content.append(".create(\"").append(contentType).append("\"),\"");
+                    } else {
+                        content.append(".DEFAULT_BINARY").append("),\"");
+                    }
+                    content.append(part.filename()).append('"');
                 }
                 content.append(")");
                 break;
@@ -294,6 +305,25 @@ public class SourceMethod extends SourceFile {
                     content.append(imports(firstNotEmpty(req.serializeAdapter(), this.serializeAdapter)))
                             .append("().serializeAsBody(").append(pName).append(",\"").append(contentType).append("\");");
                 }
+        }
+    }
+
+    private void multiPartString(StringBuilder content, String pName, PartValues part) {
+        String contentType = part.contentType();
+        if (part.filename().length() > 0 && contentType.length() > 0) {
+            content.append(".addBinaryBody(\"").append(part.name()).append("\", ").append(pName)
+                    .append(".getBytes(").append(imports("java.nio.charset.Charset"))
+                    .append(".defaultCharset())");
+            content.append(", ").append(imports("org.apache.hc.core5.http.ContentType"))
+                    .append(".create(\"").append(contentType).append("\"),\"")
+                    .append(part.filename()).append("\")");
+        } else {
+            content.append(".addTextBody(\"").append(part.name()).append("\", ").append(pName);
+            if (contentType.length() > 0) {
+                content.append(", ").append(imports("org.apache.hc.core5.http.ContentType"))
+                        .append(".create(\"").append(contentType).append("\")");
+            }
+            content.append(")");
         }
     }
 
