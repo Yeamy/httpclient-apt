@@ -1,5 +1,5 @@
 # HttpClient-APT
-
+[![](https://img.shields.io/badge/platform-Java1.8+-red)](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase) [![](https://img.shields.io/github/license/Yeamy/httpclient-apt)](https://github.com/Yeamy/httpclient-apt/blob/master/LICENSE)  
 English | [中文](README-CN.md)
 
 Generate simple http clients with Java APT.
@@ -7,7 +7,15 @@ Generate simple http clients with Java APT.
 ## Dependencies
 
 ![dependencies](dependencies.png)
-
+```
+// gradle
+dependencies {
+    // with gson
+    implementation 'io.github.yeamy:httpclient-apt-gson:1.0'
+    // or with jackson
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0'
+}
+```
 ## How to Use
 
 ### Declared the HttpClient for interface

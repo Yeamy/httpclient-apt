@@ -1,5 +1,5 @@
 # HttpClient-APT
-
+[![](https://img.shields.io/badge/platform-Java1.8+-red)](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase) [![](https://img.shields.io/github/license/Yeamy/httpclient-apt)](https://github.com/Yeamy/httpclient-apt/blob/master/LICENSE)   
 [English](README.md) | 中文
 
 通过Java APT生成简单的http客户端。
@@ -7,7 +7,15 @@
 ## 依赖关系
 
 ![依赖关系](dependencies.png)
-
+```
+// gradle
+dependencies {
+    // 使用gson
+    implementation 'io.github.yeamy:httpclient-apt-gson:1.0'
+    // 或者使用jackson
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0'
+}
+```
 ## 如何使用
 
 ### 为interface添加HttpClient注解
