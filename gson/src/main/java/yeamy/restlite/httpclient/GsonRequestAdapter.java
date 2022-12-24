@@ -19,6 +19,11 @@ import java.text.SimpleDateFormat;
 /**
  * SerializeAdapter with Google gson.<br>
  * date format: yyyy-MM-dd HH:mm:ss X
+ * <pre>
+ * &nbsp;@HttpClient(requestAdapter = "yeamy.restlite.httpclient.GsonRequestAdapter")
+ *  public interface XXX {
+ *  }
+ * </pre>
  * @see SerializeAdapter
  */
 public class GsonRequestAdapter implements SerializeAdapter {

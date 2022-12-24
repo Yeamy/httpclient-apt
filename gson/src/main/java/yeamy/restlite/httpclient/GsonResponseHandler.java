@@ -13,6 +13,11 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * HttpClientResponseHandler with Google gson.
+ * <pre>
+ * &nbsp;@HttpClient(responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler")
+ *  public interface XXX {
+ *  }
+ * </pre>
  * @see HttpClientResponseHandler
  */
 public class GsonResponseHandler<T> implements HttpClientResponseHandler<T> {

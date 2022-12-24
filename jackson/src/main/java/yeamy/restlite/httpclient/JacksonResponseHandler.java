@@ -12,7 +12,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * HttpClientResponseHandler with jackson
+ * HttpClientResponseHandler with jackson.
+ * <pre>
+ * &nbsp;@HttpClient(responseHandler = "yeamy.restlite.httpclient.JacksonResponseHandler")
+ *  public interface XXX {
+ *  }
+ * </pre>
  * @see HttpClientResponseHandler
  */
 public class JacksonResponseHandler<T> implements HttpClientResponseHandler<T> {
