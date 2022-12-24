@@ -51,14 +51,20 @@ public class HttpClientImpl {
      * @return the translated String.
      */
     public static String encodeUrl(String s) {
-        if (VERSION == 10 || VERSION == 0) {
+        if (VERSION == 0) {
             try {
-                return URLEncoder.encode(s, Charset.defaultCharset());
+                URLEncoder.class.getMethod("encode", String.class, Charset.class);
+                VERSION = 10;
             } catch (Exception e) {
                 VERSION = 8;
+                e.printStackTrace();
             }
         }
-        return URLEncoder.encode(s);
+        if (VERSION == 10 ) {
+            return URLEncoder.encode(s, Charset.defaultCharset());
+        } else {
+            return URLEncoder.encode(s);
+        }
     }
 
 }
