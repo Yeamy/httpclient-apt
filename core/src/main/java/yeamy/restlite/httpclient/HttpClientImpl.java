@@ -29,9 +29,17 @@ public class HttpClientImpl {
     }
 
     private static final CloseableHttpClient client = HttpClients.createDefault();
+    private static volatile short VERSION = 0;
 
     public static String encodeUrl(String s) {
-        return URLEncoder.encode(s, Charset.defaultCharset());
+        if (VERSION == 10 || VERSION == 0) {
+            try {
+                return URLEncoder.encode(s, Charset.defaultCharset());
+            } catch (Exception e) {
+                VERSION = 8;
+            }
+        }
+        return URLEncoder.encode(s);
     }
 
 }
