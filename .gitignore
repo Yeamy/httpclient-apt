@@ -1,0 +1,7 @@
+.idea
+.gradle
+/build
+/core/build
+/gson/build
+/jackson/build
+/demo/build

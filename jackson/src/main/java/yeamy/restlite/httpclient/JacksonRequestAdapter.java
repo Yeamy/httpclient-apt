@@ -1,0 +1,26 @@
+package yeamy.restlite.httpclient;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hc.client5.http.entity.mime.ContentBody;
+import org.apache.hc.client5.http.entity.mime.StringBody;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+public class JacksonRequestAdapter implements SerializeAdapter {
+    static final ObjectMapper jackson = new ObjectMapper()
+            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss X"));
+
+    @Override
+    public HttpEntity serializeAsBody(Object data, String contentType) throws IOException {
+        return new StringEntity(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
+    }
+
+    @Override
+    public ContentBody serializeAsPart(Object data) throws IOException {
+        return new StringBody(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
+    }
+}

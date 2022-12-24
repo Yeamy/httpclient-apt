@@ -1,0 +1,5 @@
+rootProject.name = 'httpclient-apt'
+include 'core'
+include 'gson'
+include 'jackson'
+include 'demo'

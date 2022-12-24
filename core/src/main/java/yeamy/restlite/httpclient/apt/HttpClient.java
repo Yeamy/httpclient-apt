@@ -1,0 +1,69 @@
+package yeamy.restlite.httpclient.apt;
+
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import yeamy.restlite.httpclient.SerializeAdapter;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Declare an interface to generate an implements class
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.CLASS)// For inherit
+public @interface HttpClient {
+
+    /**
+     * @return name of class to generate,
+     * if empty, class name will be like interface name with suffix "Impl"
+     */
+    String className() default "";
+
+    /**
+     * @return Class name of the SerializeAdapter.
+     * @see SerializeAdapter
+     */
+    String serializeAdapter() default "";
+
+    /**
+     * Class name of HttpClientResponseHandler.
+     * @see HttpClientResponseHandler
+     */
+    String responseHandler() default "";
+
+    /**
+     * Max execute times if throw Exceptions.
+     * @return min set to 1, if set to 0(default) using 3
+     */
+    int maxTryTimes() default 0;
+
+    /**
+     * @return Http version
+     */
+    Protocol protocol() default Protocol.NOT_DEFINED;
+
+    /**
+     * The http method(support custom method), if empty used "GET"
+     * @return may be one of the standard uppercase http method
+     */
+    String method() default "";
+
+    /**
+     * Base uri of request.
+     * The full uri is HttpClient.uri() + HttpClientRequest.uri()
+     */
+    String uri() default "";
+
+    /**
+     * Add common header of request.
+     */
+    Values[] header() default {};
+
+    /**
+     * Add common cookie of request.
+     */
+    Values[] cookie() default {};
+
+}
