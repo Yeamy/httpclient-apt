@@ -1,11 +1,10 @@
 plugins {
     id 'java-library'
 }
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
-var $version = '1.0-SNAPSHOT'
-version $version
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -13,15 +12,15 @@ repositories {
 
 dependencies {
     api project(':core')
-    api 'com.fasterxml.jackson.core:jackson-databind:2+'
-    api 'com.fasterxml.jackson.core:jackson-annotations:2+'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
+    api 'com.fasterxml.jackson.core:jackson-annotations:2.14.1'
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
-test {
-    useJUnitPlatform()
-}
+//test {
+//    useJUnitPlatform()
+//}
 
 apply plugin: 'maven-publish'
 
@@ -40,28 +39,30 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "http://docs.oracle.com/javase/11/docs/api"
+        links "https://docs.oracle.com/javase/8/docs/api/index.html"
     }
 }
 task generateJavadoc(type: Jar) { // package document as jar
     group = 'jar'
     archiveFileName = 'lib-javadoc.jar'
-//    archiveFileName = 'jackson-' + version + '-javadoc.jar'
     archiveClassifier.set('javadoc')
-    from "$rootDir/javadoc"
+    from "$buildDir/docs/javadoc"
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'io.github.yeamy'
-            artifactId 'restlite-jackson'
-            version $version
+            groupId this.group
+            artifactId 'httpclient-apt-jackson'
+            version this.version
             pom {
-                name = 'restlite-jackson'
+                name = 'httpclient-apt-jackson'
                 description = 'Generate httpclient + jackson code by create interface with annotation.'
                 url = 'https://github.com/Yeamy/httpclient-apt'
                 inceptionYear = '2022'
+                dependencies {
+
+                }
                 scm {
                     url = 'https://github.com/Yeamy/httpclient-apt'
                     connection = 'scm:git@https://github.com/Yeamy/httpclient-apt.git'
@@ -79,13 +80,18 @@ publishing {
                     developer {
                         id = 'yeamy0754'
                         name = 'Yeaming'
-                        email = 'yeamy0754@hotmail.com'
-                        url = 'https://github.com/Yeamy'
                     }
                 }
-                issueManagement {
-                    system = 'Github'
-                    url = 'https://github.com/Yeamy/httpclient-apt'
+                pom.withXml {
+                    def ds = asNode().appendNode("dependencies")
+                    configurations.implementation.allDependencies.forEach(){
+                        Dependency d -> {
+                            def dx = ds.appendNode("dependency")
+                            dx.appendNode("groupId", d.group)
+                            dx.appendNode("artifactId", d.name=='core'?'httpclient-apt':d.name)
+                            dx.appendNode("version", d.version)
+                        }
+                    }
                 }
             }
             artifact generateSourceJar

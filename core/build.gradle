@@ -4,13 +4,14 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
+version '1.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api 'org.apache.httpcomponents.client5:httpclient5:5+'
+    api 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
@@ -29,7 +30,6 @@ task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
     archiveFileName = 'lib-sources.jar'
-//    archiveFileName = 'sentinel-' + version + '-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
@@ -38,23 +38,22 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "https://docs.oracle.com/javase/8/"
+        links "https://docs.oracle.com/javase/8/docs/api/index.html"
     }
 }
 task generateJavadoc(type: Jar) { // package document as jar
     group = 'jar'
     archiveFileName = 'lib-javadoc.jar'
-//    archiveFileName = 'sentinel-' + version + '-javadoc.jar'
     archiveClassifier.set('javadoc')
-    from "$rootDir/javadoc"
+    from "$buildDir/docs/javadoc"
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'io.github.yeamy'
+            groupId this.group
             artifactId 'httpclient-apt'
-            version '1.0'
+            version this.version
             pom {
                 name = 'httpclient-apt'
                 description = 'Generate a simple http client with Java APT.'
@@ -77,13 +76,18 @@ publishing {
                     developer {
                         id = 'yeamy0754'
                         name = 'Yeaming'
-                        email = 'yeamy0754@hotmail.com'
-                        url = 'https://github.com/Yeamy'
                     }
                 }
-                issueManagement {
-                    system = 'Github'
-                    url = 'https://github.com/Yeamy/httpclient-apt'
+                pom.withXml {
+                    def ds = asNode().appendNode("dependencies")
+                    configurations.implementation.allDependencies.forEach(){
+                        Dependency d -> if(d.version!='unspecified'){
+                            def dx = ds.appendNode("dependency")
+                            dx.appendNode("groupId", d.group)
+                            dx.appendNode("artifactId", d.name)
+                            dx.appendNode("version", d.version)
+                        }
+                    }
                 }
             }
             artifact generateSourceJar

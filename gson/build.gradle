@@ -1,11 +1,10 @@
 plugins {
     id 'java-library'
 }
-sourceCompatibility = JavaVersion.VERSION_11
-var $version = '1.0'
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
-version $version
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -13,7 +12,7 @@ repositories {
 
 dependencies {
     api project(':core')
-    api 'com.google.code.gson:gson:2+'
+    api 'com.google.code.gson:gson:2.10'
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
@@ -31,7 +30,6 @@ task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
     archiveFileName = 'lib-sources.jar'
-//    archiveFileName = 'gson-' + version + '-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
@@ -40,32 +38,31 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "http://docs.oracle.com/javase/11/docs/api"
+        links "https://docs.oracle.com/javase/8/docs/api/index.html"
     }
 }
 task generateJavadoc(type: Jar) { // package document as jar
     group = 'jar'
     archiveFileName = 'lib-javadoc.jar'
-//    archiveFileName = 'gson-' + version + '-javadoc.jar'
     archiveClassifier.set('javadoc')
-    from "$rootDir/javadoc"
+    from "$buildDir/docs/javadoc"
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'io.github.yeamy'
-            artifactId 'httpclient-gson'
-            version $version
+            groupId this.group
+            artifactId 'httpclient-apt-gson'
+            version this.version
             pom {
-                name = 'restlite-gson'
+                name = 'httpclient-apt-gson'
                 description = 'Generate httpclient + gson code by create interface with annotation.'
-                url = 'https://github.com/Yeamy/HttpClientApt'
+                url = 'https://github.com/Yeamy/httpclient-apt'
                 inceptionYear = '2022'
                 scm {
-                    url = 'https://github.com/Yeamy/HttpClientApt'
-                    connection = 'scm:git@https://github.com/Yeamy/HttpClientApt.git'
-                    developerConnection = 'scm:git@https://github.com/Yeamy/HttpClientApt.git'
+                    url = 'https://github.com/Yeamy/httpclient-apt'
+                    connection = 'scm:git@https://github.com/Yeamy/httpclient-apt.git'
+                    developerConnection = 'scm:git@https://github.com/Yeamy/httpclient-apt.git'
                 }
                 licenses {
                     license {
@@ -79,13 +76,19 @@ publishing {
                     developer {
                         id = 'yeamy0754'
                         name = 'Yeaming'
-                        email = 'yeamy0754@hotmail.com'
-                        url = 'https://github.com/Yeamy'
                     }
                 }
-                issueManagement {
-                    system = 'Github'
-                    url = 'https://github.com/Yeamy/HttpClientApt'
+                pom.withXml {
+                    def ds = asNode().appendNode("dependencies")
+                    println(configurations.implementation.allDependencies)
+                    configurations.implementation.allDependencies.forEach(){
+                        Dependency d -> {
+                            def dx = ds.appendNode("dependency")
+                            dx.appendNode("groupId", d.group)
+                            dx.appendNode("artifactId", d.name=='core'?'httpclient-apt':d.name)
+                            dx.appendNode("version", d.version)
+                        }
+                    }
                 }
             }
             artifact generateSourceJar
