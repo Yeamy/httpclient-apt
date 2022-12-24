@@ -10,6 +10,11 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+/**
+ * SerializeAdapter with jackson.<br>
+ * date format: yyyy-MM-dd HH:mm:ss X
+ * @see SerializeAdapter
+ */
 public class JacksonRequestAdapter implements SerializeAdapter {
     static final ObjectMapper jackson = new ObjectMapper()
             .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss X"));

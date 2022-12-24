@@ -10,6 +10,9 @@ import javax.lang.model.element.TypeElement;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Annotation Processor Looking up HttpClient to Generate Java Class.
+ */
 public class AnnotationProcessor extends AbstractProcessor {
 
     private final Set<String> supportedAnnotationTypes = new HashSet<>();

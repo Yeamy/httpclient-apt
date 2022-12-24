@@ -11,6 +11,10 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * HttpClientResponseHandler with Google gson.
+ * @see HttpClientResponseHandler
+ */
 public class GsonResponseHandler<T> implements HttpClientResponseHandler<T> {
 
     @Override

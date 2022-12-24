@@ -11,6 +11,10 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * HttpClientResponseHandler with jackson
+ * @see HttpClientResponseHandler
+ */
 public class JacksonResponseHandler<T> implements HttpClientResponseHandler<T> {
 
     @Override

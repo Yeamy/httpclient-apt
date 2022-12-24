@@ -16,6 +16,11 @@ import java.sql.Date;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 
+/**
+ * SerializeAdapter with Google gson.<br>
+ * date format: yyyy-MM-dd HH:mm:ss X
+ * @see SerializeAdapter
+ */
 public class GsonRequestAdapter implements SerializeAdapter {
     private static final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat TF = new SimpleDateFormat("HH:mm:ss");

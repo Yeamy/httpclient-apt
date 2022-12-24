@@ -21,7 +21,8 @@ public interface DemoClient {
     @HttpClientRequest(uri = "/a/{u1}?x={{u2}}",
             cookie = @Values(name = "v", value = "{c1}"),
             header = @Values(name = "h", value = "{h1}"),
-            body = {@PartValues(name = "name", value = "{body}")}
+            body = {@PartValues(name = "name", value = "body", contentType = "text/plain", filename = "f1"),
+                    @PartValues(name = "bd1", value = "{body}", contentType = "text/plain")}
     )
     String getPo(String u1, String u2, String c1, String h1, String body);
 

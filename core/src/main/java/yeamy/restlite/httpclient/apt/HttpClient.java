@@ -28,13 +28,14 @@ public @interface HttpClient {
     String serializeAdapter() default "";
 
     /**
-     * Class name of HttpClientResponseHandler.
+     * @return Class name of HttpClientResponseHandler.
      * @see HttpClientResponseHandler
      */
     String responseHandler() default "";
 
     /**
      * Max execute times if throw Exceptions.
+     *
      * @return min set to 1, if set to 0(default) using 3
      */
     int maxTryTimes() default 0;
@@ -45,24 +46,29 @@ public @interface HttpClient {
     Protocol protocol() default Protocol.NOT_DEFINED;
 
     /**
-     * The http method(support custom method), if empty used "GET"
-     * @return may be one of the standard uppercase http method
+     * Support custom method, suggest to return one of the standard uppercase http method
+     *
+     * @return The http method, if empty used "GET" or "POST"(if contains body)
      */
     String method() default "";
 
     /**
-     * Base uri of request.
+     * @return Base uri of request.<br>
      * The full uri is HttpClient.uri() + HttpClientRequest.uri()
      */
     String uri() default "";
 
     /**
      * Add common header of request.
+     *
+     * @return array of headers
      */
     Values[] header() default {};
 
     /**
      * Add common cookie of request.
+     *
+     * @return array of cookie
      */
     Values[] cookie() default {};
 

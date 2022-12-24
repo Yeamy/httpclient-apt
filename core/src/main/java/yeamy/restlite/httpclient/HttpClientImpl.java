@@ -8,7 +8,20 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
+/**
+ * http client executor
+ */
 public class HttpClientImpl {
+
+    /**
+     * execute the http request
+     *
+     * @param request     http request to execute
+     * @param handler     http response deserializer
+     * @param maxTryTimes max run times
+     * @return response data
+     * @param <T> any type determined by the response
+     */
     public static <T> T execute(ClassicHttpRequest request, HttpClientResponseHandler<T> handler, int maxTryTimes) {
         int tryTimes = 1;
         while (true) {
@@ -31,6 +44,12 @@ public class HttpClientImpl {
     private static final CloseableHttpClient client = HttpClients.createDefault();
     private static volatile short VERSION = 0;
 
+    /**
+     * Translates a string into application/x-www-form-urlencoded format using a specific Charset.
+     * This method uses the supplied charset to obtain the bytes for unsafe characters.
+     * @param s String to be translated. charset – the given charset
+     * @return the translated String.
+     */
     public static String encodeUrl(String s) {
         if (VERSION == 10 || VERSION == 0) {
             try {

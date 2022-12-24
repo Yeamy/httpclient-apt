@@ -5,24 +5,31 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * declared the method is a http request method.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface HttpClientRequest {
 
     /**
-     * override the serializeAdapter.
+     * Override the serializeAdapter or keep it with empty string.
      */
     String serializeAdapter() default "";
 
     /**
-     * override the responseHandler.
+     * Override the responseHandler or keep it with empty string.
      */
     String responseHandler() default "";
 
+    /**
+     * Override the max execute times.
+     */
     int maxTryTimes() default 0;
 
     /**
-     * if no defined will use httpclient default protocol.
+     * If no defined will use httpclient default protocol.
+     * @return http version
      */
     Protocol protocol() default Protocol.NOT_DEFINED;
 
@@ -33,19 +40,25 @@ public @interface HttpClientRequest {
     String method() default "";
 
     /**
-     * sub uri of current request
+     * Sub uri of current request
      */
     String uri() default "";
 
     /**
      * Add header of current request.
+     * @return array of headers
      */
     Values[] header() default {};
 
     /**
      * Add header of current request.
+     * @return array of cookie
      */
     Values[] cookie() default {};
 
+    /**
+     * Add body of current request, if more than one, the request will turn to multipart.
+     * @return array of body
+     */
     PartValues[] body() default {};
 }
