@@ -19,6 +19,7 @@ abstract class SourceFile {
     protected final String httpMethod, baseUri;
     protected final Protocol protocol;
     protected final Values[] header, cookie;
+    private final boolean createConstant;
     protected final String serializeAdapter, responseHandler;
     private final ArrayList<ExecutableElement> methods = new ArrayList<>();
     private final HashMap<String, String> imports = new HashMap<>();
@@ -27,6 +28,7 @@ abstract class SourceFile {
     public SourceFile(ProcessingEnvironment env, TypeElement type, HttpClient template) {
         HttpClient client = type.getAnnotation(HttpClient.class);
         if (client == null) {
+            createConstant = true;
             serializeAdapter = template.serializeAdapter();
             responseHandler = template.responseHandler();
             className = type.getSimpleName() + "Impl";
@@ -37,6 +39,7 @@ abstract class SourceFile {
             cookie = template.cookie();
             maxTryTimes = template.maxTryTimes();
         } else if (template == null) {
+            createConstant = client.createConstant();
             serializeAdapter = client.serializeAdapter();
             responseHandler = client.responseHandler();
             className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
@@ -47,6 +50,7 @@ abstract class SourceFile {
             cookie = client.cookie();
             maxTryTimes = client.maxTryTimes();
         } else {
+            createConstant = client.createConstant();
             serializeAdapter = firstNotEmpty(client.serializeAdapter(), template.serializeAdapter());
             responseHandler = firstNotEmpty(client.responseHandler(), template.responseHandler());
             className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
@@ -105,8 +109,11 @@ abstract class SourceFile {
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(';');
         }
-        sb.append("public class ").append(className).append(" implements ")
-                .append(type.getSimpleName()).append('{').append(methods).append('}');
+        sb.append("public class ").append(className).append(" implements ").append(type.getSimpleName()).append("{");
+        if (createConstant) {
+            sb.append("public static final ").append(className).append(" INSTANCE = new ").append(className).append("();");
+        }
+        sb.append(methods).append('}');
         try (OutputStream os = f.openOutputStream()) {
             os.write(sb.toString().getBytes());
             os.flush();

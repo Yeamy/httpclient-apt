@@ -22,6 +22,11 @@ public @interface HttpClient {
     String className() default "";
 
     /**
+     * @return Whether create a single instance constant field: INSTANCE;
+     */
+    boolean createConstant() default true;
+
+    /**
      * @return Class name of the SerializeAdapter.
      * @see SerializeAdapter
      */
