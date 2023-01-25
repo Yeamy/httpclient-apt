@@ -8,8 +8,6 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * HttpClientResponseHandler with jackson.
@@ -28,14 +26,14 @@ public class JacksonResponseHandler<T> implements HttpClientResponseHandler<T> {
         if (entity == null) {
             return null;
         }
-        Charset charset = StandardCharsets.UTF_8;
+        String charset = "UTF-8";
         String header = entity.getContentType();
         if (header != null) {
             String[] parts = header.split(";");
             if (parts.length > 1) {
                 String[] charsetPart = parts[1].split("=");
                 if (charsetPart.length == 2 && "charset".equalsIgnoreCase(charsetPart[0].trim())) {
-                    charset = Charset.forName(charsetPart[1]);
+                    charset = charsetPart[1];
                 }
             }
         }
