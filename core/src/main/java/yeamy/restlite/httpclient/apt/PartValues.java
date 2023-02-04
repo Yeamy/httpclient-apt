@@ -1,7 +1,7 @@
 package yeamy.restlite.httpclient.apt;
 
 /**
- * attributes of body
+ * attributes of body/multipart
  */
 public @interface PartValues {
 
@@ -16,7 +16,7 @@ public @interface PartValues {
     String name() default "";
 
     /**
-     * content type of body.
+     * content type of body/part.
      */
     String contentType() default "";
 
