@@ -16,6 +16,7 @@ import static yeamy.restlite.httpclient.apt.Utils.*;
 abstract class SourceFile {
     private final ProcessingEnvironment env;
     protected final Elements elements;
+    private final boolean hasInjectProvider;
     protected final TypeElement type;
     private final String pkg;
     protected final String className;
@@ -28,7 +29,7 @@ abstract class SourceFile {
     private final HashMap<String, String> imports = new HashMap<>();
     private final int maxTryTimes;
 
-    public SourceFile(ProcessingEnvironment env, TypeElement type, HttpClient template) {
+    public SourceFile(ProcessingEnvironment env, boolean hasInjectProvider, TypeElement type, HttpClient template) {
         HttpClient client = type.getAnnotation(HttpClient.class);
         if (client == null) {
             createConstant = true;
@@ -66,6 +67,7 @@ abstract class SourceFile {
         }
         this.env = env;
         this.elements = env.getElementUtils();
+        this.hasInjectProvider = hasInjectProvider;
         this.type = type;
         this.pkg = ((PackageElement) type.getEnclosingElement()).getQualifiedName().toString();
         for (Element e : type.getEnclosedElements()) {
@@ -148,6 +150,10 @@ abstract class SourceFile {
         sb.append("import static yeamy.restlite.httpclient.HttpClientImpl.*;");
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(';');
+        }
+        if (hasInjectProvider) {
+            sb.append('@').append(imports("yeamy.restlite.annotation.InjectProvider")).append("(provideFor=")
+                    .append(imports(type.getQualifiedName().toString())).append(".class)");
         }
         sb.append("public class ").append(className).append(" implements ").append(type.getSimpleName()).append("{");
         if (createConstant) {

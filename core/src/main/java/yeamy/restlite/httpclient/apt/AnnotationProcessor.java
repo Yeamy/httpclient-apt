@@ -16,11 +16,14 @@ import java.util.Set;
 public class AnnotationProcessor extends AbstractProcessor {
 
     private final Set<String> supportedAnnotationTypes = new HashSet<>();
+    private boolean hasInjectProvider;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         supportedAnnotationTypes.add(HttpClient.class.getCanonicalName());
+        hasInjectProvider = processingEnv.getElementUtils()
+                .getTypeElement("yeamy.restlite.annotation.InjectProvider") != null;
     }
 
     @Override
@@ -41,14 +44,14 @@ public class AnnotationProcessor extends AbstractProcessor {
                 Element type = processingEnv.getTypeUtils().asElement(element.asType());
                 for (Element element1 : roundEnv.getElementsAnnotatedWith((TypeElement) type)) {
                     try {
-                        new SourceMethod(processingEnv, (TypeElement) element1, template).create();
+                        new SourceMethod(processingEnv, hasInjectProvider, (TypeElement) element1, template).create();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } else if (element.getKind() == ElementKind.INTERFACE) {
                 try {
-                    new SourceMethod(processingEnv, (TypeElement) element).create();
+                    new SourceMethod(processingEnv, hasInjectProvider, (TypeElement) element).create();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

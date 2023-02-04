@@ -16,12 +16,12 @@ import static yeamy.restlite.httpclient.apt.Utils.*;
 
 class SourceMethod extends SourceFile {
 
-    public SourceMethod(ProcessingEnvironment env, TypeElement type, HttpClient template) {
-        super(env, type, template);
+    public SourceMethod(ProcessingEnvironment env, boolean hasInjectProvider, TypeElement type, HttpClient template) {
+        super(env, hasInjectProvider, type, template);
     }
 
-    public SourceMethod(ProcessingEnvironment env, TypeElement type) {
-        super(env, type, null);
+    public SourceMethod(ProcessingEnvironment env, boolean hasInjectProvider, TypeElement type) {
+        super(env, hasInjectProvider, type, null);
     }
 
     @Override
