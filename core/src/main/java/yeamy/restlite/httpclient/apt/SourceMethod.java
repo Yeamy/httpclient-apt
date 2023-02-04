@@ -6,6 +6,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +46,7 @@ class SourceMethod extends SourceFile {
         } else if (parts.length > 1) {
             multiPart(content, req, parts, method, params);
         }
-        String responseHandler = firstNotEmpty(req.responseHandler(), this.responseHandler);
+        String responseHandler = responseHandler(req, this.responseHandler);
         if (TextUtils.isBlank(responseHandler)) {
             String msg = "ResponseHandler cannot be empty: class " + type.getQualifiedName();
             printError(msg);
@@ -213,13 +214,13 @@ class SourceMethod extends SourceFile {
             }
             break;
             default:
-                String responseHandler = firstNotEmpty(req.responseHandler(), this.responseHandler);
+                String responseHandler = responseHandler(req, this.responseHandler);
                 if (TextUtils.isBlank(responseHandler)) {
                     String msg = "ResponseHandler cannot be empty: class " + type.getQualifiedName();
                     printError(msg);
                     content.append("/*").append(msg).append("*/;");
                 } else {
-                    content.append(imports(firstNotEmpty(req.serializeAdapter(), this.serializeAdapter)))
+                    content.append(imports(serializeAdapter(req, this.serializeAdapter)))
                             .append("().serializeAsBody(").append(pName).append(",\"").append(contentType).append("\");");
                 }
         }
@@ -296,15 +297,42 @@ class SourceMethod extends SourceFile {
                 break;
             }
             default:
-                String responseHandler = firstNotEmpty(req.responseHandler(), this.responseHandler);
+                String responseHandler = responseHandler(req, this.responseHandler);
                 if (TextUtils.isBlank(responseHandler)) {
                     String msg = "ResponseHandler cannot be empty: class " + type.getQualifiedName();
                     printError(msg);
                     content.append("/*").append(msg).append("*/;");
                 } else {
-                    content.append(imports(firstNotEmpty(req.serializeAdapter(), this.serializeAdapter)))
+                    content.append(imports(serializeAdapter(req, this.serializeAdapter)))
                             .append("().serializeAsBody(").append(pName).append(",\"").append(contentType).append("\");");
                 }
+        }
+    }
+
+    private TypeMirror responseHandler(HttpClientRequest req) {
+        try {
+            Class<?> t = req.responseHandler();
+            return elements.getTypeElement(t.getName()).asType();
+        } catch (MirroredTypeException e) {
+            return e.getTypeMirror();
+        }
+    }
+
+    private String responseHandler(HttpClientRequest req, TypeMirror fallback) {
+        TypeMirror t = responseHandler(req);
+        if (t.toString().equals("yeamy.restlite.httpclient.NoHttpClientResponseHandler")) {
+            return fallback.toString();
+        } else {
+            return t.toString();
+        }
+    }
+
+    private String serializeAdapter(HttpClientRequest req, TypeMirror fallback) {
+        TypeMirror t = responseHandler(req);
+        if (t.toString().equals("yeamy.restlite.httpclient.NoHttpClientResponseHandler")) {
+            return fallback.toString();
+        } else {
+            return t.toString();
         }
     }
 

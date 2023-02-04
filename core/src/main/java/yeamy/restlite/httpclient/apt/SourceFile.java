@@ -2,7 +2,9 @@ package yeamy.restlite.httpclient.apt;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import static yeamy.restlite.httpclient.apt.Utils.*;
 
 abstract class SourceFile {
     private final ProcessingEnvironment env;
+    protected final Elements elements;
     protected final TypeElement type;
     private final String pkg;
     protected final String className;
@@ -20,7 +23,7 @@ abstract class SourceFile {
     protected final Protocol protocol;
     protected final Values[] header, cookie;
     private final boolean createConstant;
-    protected final String serializeAdapter, responseHandler;
+    protected final TypeMirror serializeAdapter, responseHandler;
     private final ArrayList<ExecutableElement> methods = new ArrayList<>();
     private final HashMap<String, String> imports = new HashMap<>();
     private final int maxTryTimes;
@@ -29,8 +32,8 @@ abstract class SourceFile {
         HttpClient client = type.getAnnotation(HttpClient.class);
         if (client == null) {
             createConstant = true;
-            serializeAdapter = template.serializeAdapter();
-            responseHandler = template.responseHandler();
+            serializeAdapter = serializeAdapter(template);
+            responseHandler = responseHandler(template);
             className = type.getSimpleName() + "Impl";
             httpMethod = template.method();
             baseUri = template.uri();
@@ -40,8 +43,8 @@ abstract class SourceFile {
             maxTryTimes = template.maxTryTimes();
         } else if (template == null) {
             createConstant = client.createConstant();
-            serializeAdapter = client.serializeAdapter();
-            responseHandler = client.responseHandler();
+            serializeAdapter = serializeAdapter(client);
+            responseHandler = responseHandler(client);
             className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
             httpMethod = client.method();
             baseUri = client.uri();
@@ -51,8 +54,8 @@ abstract class SourceFile {
             maxTryTimes = client.maxTryTimes();
         } else {
             createConstant = client.createConstant();
-            serializeAdapter = firstNotEmpty(client.serializeAdapter(), template.serializeAdapter());
-            responseHandler = firstNotEmpty(client.responseHandler(), template.responseHandler());
+            serializeAdapter = serializeAdapter(client, template);
+            responseHandler = responseHandler(client, template);
             className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
             httpMethod = firstNotEmpty(client.method(), template.method());
             baseUri = firstNotEmpty(client.uri(), template.uri());
@@ -62,6 +65,7 @@ abstract class SourceFile {
             maxTryTimes = firstNotEquals(0, client.maxTryTimes(), template.maxTryTimes());
         }
         this.env = env;
+        this.elements = env.getElementUtils();
         this.type = type;
         this.pkg = ((PackageElement) type.getEnclosingElement()).getQualifiedName().toString();
         for (Element e : type.getEnclosedElements()) {
@@ -77,6 +81,42 @@ abstract class SourceFile {
         imports("org.apache.hc.client5.http.cookie.BasicCookieStore");
         imports("org.apache.hc.client5.http.impl.cookie.BasicClientCookie");
         imports("org.apache.hc.core5.http.HttpVersion");
+    }
+
+    private TypeMirror serializeAdapter(HttpClient client) {
+        try {
+            Class<?> t = client.serializeAdapter();
+            return elements.getTypeElement(t.getName()).asType();
+        } catch (MirroredTypeException e) {
+            return e.getTypeMirror();
+        }
+    }
+
+    private TypeMirror serializeAdapter(HttpClient client, HttpClient template) {
+        TypeMirror t = serializeAdapter(client);
+        if (t.toString().equals("yeamy.restlite.httpclient.NoSerializeAdapter")) {
+            return serializeAdapter(template);
+        } else {
+            return t;
+        }
+    }
+
+    private TypeMirror responseHandler(HttpClient client) {
+        try {
+            Class<?> t = client.responseHandler();
+            return elements.getTypeElement(t.getName()).asType();
+        } catch (MirroredTypeException e) {
+            return e.getTypeMirror();
+        }
+    }
+
+    private TypeMirror responseHandler(HttpClient client, HttpClient template) {
+        TypeMirror t = responseHandler(client);
+        if (t.toString().equals("yeamy.restlite.httpclient.NoHttpClientResponseHandler")) {
+            return responseHandler(template);
+        } else {
+            return t;
+        }
     }
 
     public String imports(String clz) {

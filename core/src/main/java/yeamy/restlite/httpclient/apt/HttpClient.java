@@ -1,6 +1,8 @@
 package yeamy.restlite.httpclient.apt;
 
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import yeamy.restlite.httpclient.NoHttpClientResponseHandler;
+import yeamy.restlite.httpclient.NoSerializeAdapter;
 import yeamy.restlite.httpclient.SerializeAdapter;
 
 import java.lang.annotation.ElementType;
@@ -30,13 +32,13 @@ public @interface HttpClient {
      * @return Class name of the SerializeAdapter.
      * @see SerializeAdapter
      */
-    String serializeAdapter() default "";
+    Class<?> serializeAdapter() default NoSerializeAdapter.class;
 
     /**
      * @return Class name of HttpClientResponseHandler.
      * @see HttpClientResponseHandler
      */
-    String responseHandler() default "";
+    Class<?> responseHandler() default NoHttpClientResponseHandler.class;
 
     /**
      * Max execute times if throw Exceptions.

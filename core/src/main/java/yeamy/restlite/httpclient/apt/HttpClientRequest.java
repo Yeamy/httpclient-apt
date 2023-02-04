@@ -1,5 +1,10 @@
 package yeamy.restlite.httpclient.apt;
 
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import yeamy.restlite.httpclient.NoHttpClientResponseHandler;
+import yeamy.restlite.httpclient.NoSerializeAdapter;
+import yeamy.restlite.httpclient.SerializeAdapter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,13 +19,17 @@ public @interface HttpClientRequest {
 
     /**
      * Override the serializeAdapter or keep it with empty string.
+     *
+     * @see SerializeAdapter
      */
-    String serializeAdapter() default "";
+    Class<?> serializeAdapter() default NoSerializeAdapter.class;
 
     /**
      * Override the responseHandler or keep it with empty string.
+     *
+     * @see HttpClientResponseHandler
      */
-    String responseHandler() default "";
+    Class<?> responseHandler() default NoHttpClientResponseHandler.class;
 
     /**
      * Override the max execute times.
@@ -29,12 +38,14 @@ public @interface HttpClientRequest {
 
     /**
      * If no defined will use httpclient default protocol.
+     *
      * @return http version
      */
     Protocol protocol() default Protocol.NOT_DEFINED;
 
     /**
      * Override the http method(support custom method), if empty used "GET"
+     *
      * @return may be one of the standard uppercase http method
      */
     String method() default "";
@@ -46,18 +57,21 @@ public @interface HttpClientRequest {
 
     /**
      * Add header of current request.
+     *
      * @return array of headers
      */
     Values[] header() default {};
 
     /**
      * Add header of current request.
+     *
      * @return array of cookie
      */
     Values[] cookie() default {};
 
     /**
      * Add body of current request, if more than one, the request will turn to multipart.
+     *
      * @return array of body
      */
     PartValues[] body() default {};
