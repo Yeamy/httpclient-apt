@@ -6,7 +6,6 @@ import yeamy.restlite.httpclient.apt.HttpClient;
 import yeamy.restlite.httpclient.apt.Values;
 
 @HttpClient(
-        array = {Object.class, Number.class},
         responseHandler = GsonResponseHandler.class,
         serializeAdapter = GsonRequestAdapter.class,
         maxTryTimes = 1,
