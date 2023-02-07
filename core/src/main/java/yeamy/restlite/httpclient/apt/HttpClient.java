@@ -32,13 +32,13 @@ public @interface HttpClient {
      * @return Class name of the SerializeAdapter.
      * @see SerializeAdapter
      */
-    Class<?> serializeAdapter() default NoSerializeAdapter.class;
+    Class<? extends SerializeAdapter> serializeAdapter() default NoSerializeAdapter.class;
 
     /**
      * @return Class name of HttpClientResponseHandler.
      * @see HttpClientResponseHandler
      */
-    Class<?> responseHandler() default NoHttpClientResponseHandler.class;
+    Class<? extends HttpClientResponseHandler> responseHandler() default NoHttpClientResponseHandler.class;
 
     /**
      * Max execute times if throw Exceptions.
