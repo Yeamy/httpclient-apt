@@ -60,7 +60,7 @@ publishing {
                 name = 'httpclient-apt-jacksonxml'
                 description = 'Generate httpclient + jackson xml code by create interface with annotation.'
                 url = 'https://github.com/Yeamy/httpclient-apt'
-                inceptionYear = '2022'
+                inceptionYear = '2023'
                 dependencies {
 
                 }
