@@ -7,23 +7,28 @@
 ## 依赖关系
 
 ![依赖关系](dependencies.png)
-```
+```gradle
 // gradle
 dependencies {
     // 使用gson
-    implementation 'io.github.yeamy:httpclient-apt-gson:1.0'
+    implementation 'io.github.yeamy:httpclient-apt-gson:1.0.1'
     // 或者使用jackson
-    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0'
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0.1'
+    // 或者使用jackson xml
+    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.0.1'
 }
 ```
 ## 如何使用
 
 ### 为interface添加HttpClient注解
 
-```
+```java
+import yeamy.restlite.httpclient.GsonRequestAdapter;
+import yeamy.restlite.httpclient.GsonResponseHandler;
+
 @HttpClient(
-        serializeAdapter = "yeamy.restlite.httpclient.GsonRequestAdapter",// 请求body的序列化适配器
-        responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler",// http应答数据处理器
+        serializeAdapter = GsonRequestAdapter.class,// 请求body的序列化适配器
+        responseHandler = GsonResponseHandler.class,// http应答数据处理器
         uri = "http://localhost:8080", // 基础uri
         maxTryTimes = 1,
         header = @Values(name = "user-agent", value = "custom-app/1.0"), // 共用的header
@@ -37,10 +42,13 @@ public interface DemoClient {// 必须是interface
 
 创建一个模板注解(此处命名为 `TemplateClient`)
 
-```
+```java
+import yeamy.restlite.httpclient.JacksonRequestAdapter;
+import yeamy.restlite.httpclient.JacksonResponseHandler;
+
 @HttpClient(
-        serializeAdapter = "yeamy.restlite.httpclient.GsonRequestAdapter",
-        responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler",
+        serializeAdapter = JacksonRequestAdapter.class,
+        responseHandler = JacksonResponseHandler.class,
         maxTryTimes = 1,
         uri = "http://localhost:8080",
         header = @Values(name = "user-agent", value = "custom-app/1.0"),
@@ -50,9 +58,9 @@ public @interface TemplateClient {
 }
 ```
 
-为interface添加`TemplateClient`注解
+为**接口**添加`TemplateClient`注解
 
-```
+```java
 @TemplateClient
 // @HttpClient(maxTryTimes = 2) // 可以再次使用HttpClient覆盖TemplateClient的属性
 public interface DemoClient {// 必须是interface
@@ -61,7 +69,7 @@ public interface DemoClient {// 必须是interface
 
 ### 使用HttpClientRequest注解创建请求方法
 
-```
+```java
 public interface DemoClient {
 
     @HttpClientRequest(uri = "/baidu")
@@ -74,7 +82,7 @@ public interface DemoClient {
 1. 用大括号声明变量。
 2. 为java方法添加同名参数。
 
-```
+```java
 public interface DemoClient {
     @HttpClientRequest(
             uri = "http://localhost:8080/a/{u1}?x={{u2}}",

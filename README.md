@@ -20,10 +20,13 @@ dependencies {
 
 ### Declared the HttpClient for interface
 
-```
+```java
+import yeamy.restlite.httpclient.GsonRequestAdapter;
+import yeamy.restlite.httpclient.GsonResponseHandler;
+
 @HttpClient(
-        serializeAdapter = "yeamy.restlite.httpclient.GsonRequestAdapter",// set request serialize adapter
-        responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler",// set respone handler
+        serializeAdapter = GsonRequestAdapter.class,// set request serialize adapter
+        responseHandler = GsonResponseHandler.class,// set respone handler
         uri = "http://localhost:8080", // set the base uri
         maxTryTimes = 1,
         header = @Values(name = "user-agent", value = "custom-app/1.0"), // add common header
@@ -37,10 +40,13 @@ public interface DemoClient {// must be an interface
 
 create an annotation (such as `TemplateClient`) with HttpClient
 
-```
+```java
+import yeamy.restlite.httpclient.JacksonRequestAdapter;
+import yeamy.restlite.httpclient.JacksonResponseHandler;
+
 @HttpClient(
-        serializeAdapter = "yeamy.restlite.httpclient.GsonRequestAdapter",
-        responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler",
+        serializeAdapter = JacksonRequestAdapter.class,
+        responseHandler = JacksonResponseHandler.class,
         maxTryTimes = 1,
         uri = "http://localhost:8080",
         header = @Values(name = "user-agent", value = "custom-app/1.0"),
@@ -52,7 +58,7 @@ public @interface TemplateClient {
 
 add `TemplateClient` for the interface
 
-```
+```java
 @TemplateClient
 // @HttpClient(maxTryTimes = 2) // can alse override attributes of TemplateClient
 public interface DemoClient {// must be an interface
@@ -61,7 +67,7 @@ public interface DemoClient {// must be an interface
 
 ### create request method with HttpClientRequest
 
-```
+```java
 public interface DemoClient {
 
     @HttpClientRequest(uri = "/baidu")
@@ -74,7 +80,7 @@ public interface DemoClient {
 1. declared parameters with brackets in annotation.
 2. add java method parameters with same name.
 
-```
+```java
 public interface DemoClient {
     @HttpClientRequest(
             uri = "http://localhost:8080/a/{u1}?x={{u2}}",
