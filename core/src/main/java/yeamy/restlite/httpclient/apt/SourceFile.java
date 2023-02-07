@@ -63,7 +63,7 @@ abstract class SourceFile {
             protocol = firstNotEquals(Protocol.NOT_DEFINED, client.protocol(), template.protocol());
             header = appendArray(template.header(), client.header());
             cookie = appendArray(template.cookie(), client.cookie());
-            maxTryTimes = firstNotEquals(0, client.maxTryTimes(), template.maxTryTimes());
+            maxTryTimes = firstGreaterThan(0, client.maxTryTimes(), template.maxTryTimes());
         }
         this.env = env;
         this.elements = env.getElementUtils();

@@ -43,9 +43,9 @@ public @interface HttpClient {
     /**
      * Max execute times if throw Exceptions.
      *
-     * @return min set to 1, if set to 0(default) using 3
+     * @return min set to 1, default is 3
      */
-    int maxTryTimes() default 0;
+    int maxTryTimes() default 3;
 
     /**
      * @return Http version

@@ -2,6 +2,15 @@ package yeamy.restlite.httpclient.apt;
 
 public class Utils {
 
+    public static int firstGreaterThan(int c, int... ts) {
+        for (int t : ts) {
+            if (t > c) {
+                return t;
+            }
+        }
+        return c;
+    }
+
     @SafeVarargs
     public static <T> T firstNotEquals(T c, T... ts) {
         for (T t : ts) {
