@@ -63,11 +63,25 @@ public @interface HttpClientRequest {
     Values[] header() default {};
 
     /**
+     * Add header of current request in a map.
+     *
+     * @return param name in method with curly bracket
+     */
+    String headerMap() default "";
+
+    /**
      * Add header of current request.
      *
      * @return array of cookie
      */
     Values[] cookie() default {};
+
+    /**
+     * Add cookie of current request in a map.
+     *
+     * @return param name in method with curly bracket
+     */
+    String cookieMap() default "";
 
     /**
      * Add body of current request, if more than one, the request will turn to multipart.

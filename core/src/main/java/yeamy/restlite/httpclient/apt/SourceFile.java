@@ -5,6 +5,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import static yeamy.restlite.httpclient.apt.Utils.*;
 abstract class SourceFile {
     private final ProcessingEnvironment env;
     protected final Elements elements;
+    protected final Types types;
     private final boolean hasInjectProvider;
     protected final TypeElement type;
     private final String pkg;
@@ -66,6 +68,7 @@ abstract class SourceFile {
             maxTryTimes = firstGreaterThan(0, client.maxTryTimes(), template.maxTryTimes());
         }
         this.env = env;
+        this.types = env.getTypeUtils();
         this.elements = env.getElementUtils();
         this.hasInjectProvider = hasInjectProvider;
         this.type = type;
