@@ -7,6 +7,9 @@ import yeamy.restlite.httpclient.apt.HttpClientRequest;
 import yeamy.restlite.httpclient.apt.PartValues;
 import yeamy.restlite.httpclient.apt.Values;
 
+import java.util.List;
+import java.util.Map;
+
 @HttpClient(
         responseHandler = GsonResponseHandler.class,
         serializeAdapter = GsonRequestAdapter.class,
@@ -22,11 +25,14 @@ public interface DemoClient {
 
     @HttpClientRequest(uri = "/a/{u1}?x={{u2}}",
             cookie = @Values(name = "v", value = "{c1}"),
+            headerMap = "{m1}",
+            cookieMap = "{m2}",
             header = @Values(name = "h", value = "{h1}"),
             body = {@PartValues(name = "name", value = "body", contentType = "text/plain", filename = "f1"),
                     @PartValues(name = "bd1", value = "{body}", contentType = "text/plain")}
     )
-    String getPo(String u1, String u2, String c1, String h1, String body);
+    String getPo(String u1, String u2, String c1, String h1, String body,
+                 Map<?, String> m1, Map<String, List<String>> m2);
 
     //    @HttpClientRequest(uri = "/a", method = "POST")
     String post(String a);

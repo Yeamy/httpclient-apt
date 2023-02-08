@@ -1,5 +1,9 @@
 package yeamy.restlite.httpclient.apt;
 
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
+
 public class Utils {
 
     public static int firstGreaterThan(int c, int... ts) {
@@ -46,4 +50,22 @@ public class Utils {
         return value.substring(1, value.length() - 1).trim();
     }
 
+
+    public static boolean[] getTypeParameters(String type) {
+        boolean[] out = {false, false};
+        int i = type.indexOf('<');
+        if (i > 0) {
+            String[] tps = type.substring(i + 1, type.indexOf('>')).split(",");
+            out[0] = "java.lang.String".equals(tps[0].trim());
+            out[1] = "java.lang.String".equals(tps[1].trim());
+        }
+        return out;
+    }
+
+    public static boolean isAcceptType(Types types, VariableElement e, TypeMirror map) {
+        String name = e.asType().toString();
+        return name.equals("java.util.Map")
+                || name.startsWith("java.util.Map<")
+                || types.isSubtype(e.asType(), map);
+    }
 }

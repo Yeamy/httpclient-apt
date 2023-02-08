@@ -5,14 +5,12 @@ import org.apache.hc.core5.util.TextUtils;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import static yeamy.restlite.httpclient.apt.Utils.*;
 
@@ -42,7 +40,6 @@ class SourceMethod extends SourceFile {
                 .append("\", URI.create(uri));");
         protocol(content, req);
         headerMap(content, req, method, params);
-        cookieMap(content, req, method, params);
         header(content, req, method, params);
         cookie(content, req, method, params);
         if (parts.length == 1) {
@@ -132,23 +129,20 @@ class SourceMethod extends SourceFile {
             return;
         }
         if (isParam(headerMap)) {
+            headerMap = getParamName(headerMap);
             VariableElement e = params.get(headerMap);
             if (e == null) {
                 String msg = "Missing headerMap param '" + headerMap + "': " + this.className + '.' + method;
                 printError(msg);
-            } else if (!types.isSubtype(e.asType(), mapTypeMirror())) {
-                String msg = "HeaderMap must be subtype of Map<> '" + headerMap + "': " + this.className + '.' + method;
+            } else if (!isAcceptType(types, e, mapTypeMirror())) {
+                String msg = "HeaderMap must be a Map<> '" + headerMap + "': " + this.className + '.' + method;
                 printError(msg);
             } else {
-                List<? extends TypeParameterElement> tps = elements.getTypeElement(e.asType().toString()).getTypeParameters();
-                String k = tps.get(0).asType().toString().equals("java.lang.String")
-                        ? "String.valueOf(k)" : "k";
-                String v = tps.get(1).asType().toString().equals("java.lang.String")
-                        ? "String.valueOf(v)" : "v";
-                content.append(getParamName(headerMap))
+                boolean[] kv = getTypeParameters(e.asType().toString());
+                content.append(headerMap)
                         .append(".forEach((k,v)->req.setHeader(")
-                        .append(k).append(',')
-                        .append(v).append("));");
+                        .append(kv[0] ? "k" : "String.valueOf(k)")
+                        .append(",v));");
             }
         } else {
             String msg = "HeaderMap must with curly bracket '" + headerMap + "': " + this.className + '.' + method;
@@ -193,23 +187,20 @@ class SourceMethod extends SourceFile {
             return;
         }
         if (isParam(cookieMap)) {
+            cookieMap = getParamName(cookieMap);
             VariableElement e = params.get(cookieMap);
             if (e == null) {
-                String msg = "Missing headerMap param '" + cookieMap + "': " + this.className + '.' + method;
+                String msg = "Missing cookieMap param '" + cookieMap + "': " + this.className + '.' + method;
                 printError(msg);
-            } else if (!types.isSubtype(e.asType(), mapTypeMirror())) {
-                String msg = "HeaderMap must be subtype of Map<> '" + cookieMap + "': " + this.className + '.' + method;
+            } else if (!isAcceptType(types, e, mapTypeMirror())) {
+                String msg = "CookieMap must be a Map<> '" + cookieMap + "': " + this.className + '.' + method;
                 printError(msg);
             } else {
-                List<? extends TypeParameterElement> tps = elements.getTypeElement(e.asType().toString()).getTypeParameters();
-                String k = tps.get(0).asType().toString().equals("java.lang.String")
-                        ? "String.valueOf(k)" : "k";
-                String v = tps.get(1).asType().toString().equals("java.lang.String")
-                        ? "String.valueOf(v)" : "v";
+                boolean[] kv = getTypeParameters(e.asType().toString());
                 content.append(cookieMap)
                         .append(".forEach((k,v)->cookie.addCookie(new BasicClientCookie(")
-                        .append(k).append(',')
-                        .append(v).append(")));");
+                        .append(kv[0] ? "k" : "String.valueOf(k)").append(',')
+                        .append(kv[1] ? "v" : "String.valueOf(v)").append(")));");
             }
         } else {
             String msg = "CookieMap must with curly bracket '" + cookieMap + "': " + this.className + '.' + method;
@@ -222,9 +213,6 @@ class SourceMethod extends SourceFile {
         ArrayList<Values> cookies = new ArrayList<>();
         Collections.addAll(cookies, this.cookie);
         Collections.addAll(cookies, req.cookie());
-        if (cookies.size() == 0) {
-            return;
-        }
         StringBuilder temp = new StringBuilder();
         for (Values cookie : cookies) {
             String cName = cookie.value();
@@ -249,9 +237,13 @@ class SourceMethod extends SourceFile {
                         .append("\"));");
             }
         }
-        content.append("BasicCookieStore cookie = new BasicCookieStore();");
-        content.append(temp);
-        content.append("req.setHeader(\"Cookie\", cookie);");
+        int l = temp.length();
+        cookieMap(temp, req, method, params);
+        if (temp.length() > l) {
+            content.append("BasicCookieStore cookie = new BasicCookieStore();");
+            content.append(temp);
+            temp.append("req.setHeader(\"Cookie\", cookie);");
+        }
     }
 
     private void body(StringBuilder content, HttpClientRequest req, PartValues body, String method,

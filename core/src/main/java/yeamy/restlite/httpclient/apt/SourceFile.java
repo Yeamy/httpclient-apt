@@ -128,18 +128,45 @@ abstract class SourceFile {
         if (clz.length() == 0) {
             return "";
         }
-        if (clz.startsWith("java.lang.") && clz.indexOf('.', 10) == -1)
+        if (clz.startsWith("java.lang.") && clz.indexOf('.', 10) == -1) {
             return clz.substring(10);
+        }
+        String ar = "";
+        if (clz.charAt(clz.length() - 1) == ']') {
+            for (int i = clz.length() - 2; i > 0; i--) {
+                char c = clz.charAt(i);
+                if (c != '[' && c != ']') {
+                    ar = clz.substring(i);
+                    break;
+                }
+            }
+        }
+        String vp = "";
+        int i = clz.indexOf('<');
+        if (i > 0) {
+            StringBuilder sb = new StringBuilder("<");
+            for (String st : clz.substring(i + 1, clz.lastIndexOf('>')).split(",")) {
+                String clz2 = st.trim();
+                if (clz2.equals("?")) {
+                    sb.append("?,");
+                } else {
+                    sb.append(imports(clz2)).append(',');
+                }
+            }
+            sb.setCharAt(sb.length() - 1, '>');
+            vp = sb.toString();
+            clz = clz.substring(0, i);
+        }
         String sn = clz.substring(clz.lastIndexOf('.') + 1);
         String clz2 = imports.get(sn);
         if (clz2 == null) {
             imports.put(sn, clz);
-            return sn;
+            return sn + vp + ar;
         }
         if (clz2.equals(clz)) {
-            return sn;
+            return sn + vp + ar;
         }
-        return clz;
+        return clz + vp + ar;
     }
 
     public void create() throws IOException {
