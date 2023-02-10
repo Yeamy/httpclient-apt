@@ -210,10 +210,11 @@ class SourceMethod extends SourceFile {
 
     private void cookie(StringBuilder content, HttpClientRequest req, String method,
                         LinkedHashMap<String, VariableElement> params) {
+        StringBuilder temp = new StringBuilder();
+        cookieMap(temp, req, method, params);
         ArrayList<Values> cookies = new ArrayList<>();
         Collections.addAll(cookies, this.cookie);
         Collections.addAll(cookies, req.cookie());
-        StringBuilder temp = new StringBuilder();
         for (Values cookie : cookies) {
             String cName = cookie.value();
             if (isParam(cName)) {
@@ -237,9 +238,7 @@ class SourceMethod extends SourceFile {
                         .append("\"));");
             }
         }
-        int l = temp.length();
-        cookieMap(temp, req, method, params);
-        if (temp.length() > l) {
+        if (temp.length() > 0) {
             content.append("BasicCookieStore cookie = new BasicCookieStore();");
             content.append(temp);
             temp.append("req.setHeader(\"Cookie\", cookie);");
