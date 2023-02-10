@@ -22,14 +22,14 @@ public @interface HttpClientRequest {
      *
      * @see SerializeAdapter
      */
-    Class<?> serializeAdapter() default NoSerializeAdapter.class;
+    Class<? extends SerializeAdapter> serializeAdapter() default NoSerializeAdapter.class;
 
     /**
      * Override the responseHandler or keep it with empty string.
      *
      * @see HttpClientResponseHandler
      */
-    Class<?> responseHandler() default NoHttpClientResponseHandler.class;
+    Class<? extends HttpClientResponseHandler> responseHandler() default NoHttpClientResponseHandler.class;
 
     /**
      * Override the max execute times.
