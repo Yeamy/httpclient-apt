@@ -4,7 +4,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
-version '1.0.1'
+version '1.0.2'
 
 repositories {
     mavenCentral()
@@ -17,9 +17,9 @@ dependencies {
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
-test {
-    useJUnitPlatform()
-}
+//test {
+//    useJUnitPlatform()
+//}
 
 apply plugin: 'maven-publish'
 
@@ -58,7 +58,7 @@ publishing {
                 name = 'httpclient-apt-gson'
                 description = 'Generate httpclient + gson code by create interface with annotation.'
                 url = 'https://github.com/Yeamy/httpclient-apt'
-                inceptionYear = '2022'
+                inceptionYear = '2023'
                 scm {
                     url = 'https://github.com/Yeamy/httpclient-apt'
                     connection = 'scm:git@https://github.com/Yeamy/httpclient-apt.git'

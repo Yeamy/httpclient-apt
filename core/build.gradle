@@ -4,7 +4,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
-version '1.0.1'
+version '1.0.2'
 
 repositories {
     mavenCentral()
@@ -58,7 +58,7 @@ publishing {
                 name = 'httpclient-apt'
                 description = 'Generate a simple http client with Java APT.'
                 url = 'https://github.com/Yeamy/httpclient-apt'
-                inceptionYear = '2022'
+                inceptionYear = '2023'
                 scm {
                     url = 'https://github.com/Yeamy/httpclient-apt'
                     connection = 'scm:git@https://github.com/Yeamy/httpclient-apt.git'
