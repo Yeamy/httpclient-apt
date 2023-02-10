@@ -2,20 +2,18 @@
 [![](https://img.shields.io/badge/platform-Java1.8+-red)](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase) [![](https://img.shields.io/github/license/Yeamy/httpclient-apt)](https://github.com/Yeamy/httpclient-apt/blob/master/LICENSE)   
 [English](README.md) | 中文
 
-通过Java APT生成简单的http客户端。
+通过Java APT生成http请求代码。基于Apache HttpClient5开发，效率高于OpenFeign和Forest的动态代理实现。
 
 ## 依赖关系
-
-![依赖关系](dependencies.png)
+以gradle为例
 ```gradle
-// gradle
 dependencies {
     // 使用gson
-    implementation 'io.github.yeamy:httpclient-apt-gson:1.0.1'
+    implementation 'io.github.yeamy:httpclient-apt-gson:1.0.2'
     // 或者使用jackson
-    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0.1'
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0.2'
     // 或者使用jackson xml
-    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.0.1'
+    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.0.2'
 }
 ```
 ## 如何使用
@@ -38,9 +36,9 @@ public interface DemoClient {// 必须是interface
 }
 ```
 
-### 或者创建一个模板注解
+### 可以把@HttpClient制作成一个模板，供多个类使用
 
-创建一个模板注解(此处命名为 `TemplateClient`)
+创建一个模板注解
 
 ```java
 import yeamy.restlite.httpclient.JacksonRequestAdapter;
@@ -58,7 +56,7 @@ public @interface TemplateClient {
 }
 ```
 
-为**接口**添加`TemplateClient`注解
+为**接口**添加该模板注解
 
 ```java
 @TemplateClient

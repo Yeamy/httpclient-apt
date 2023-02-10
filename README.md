@@ -2,18 +2,18 @@
 [![](https://img.shields.io/badge/platform-Java1.8+-red)](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase) [![](https://img.shields.io/github/license/Yeamy/httpclient-apt)](https://github.com/Yeamy/httpclient-apt/blob/master/LICENSE)  
 English | [中文](README-CN.md)
 
-Generate simple http clients with Java APT.
+Generate simple http clients with Java APT. Base on Apache HttpClient5, more efficient than the dynamic proxy (such as: OpenFeign and Forest).
 
 ## Dependencies
-
-![dependencies](dependencies.png)
+Take gradle as an example
 ```
-// gradle
 dependencies {
     // with gson
-    implementation 'io.github.yeamy:httpclient-apt-gson:1.0'
+    implementation 'io.github.yeamy:httpclient-apt-gson:1.0.2'
     // or with jackson
-    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0'
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.0.2'
+    // or with jackson xml
+    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.0.2'
 }
 ```
 ## How to Use
@@ -36,9 +36,9 @@ public interface DemoClient {// must be an interface
 }
 ```
 
-### OR create a template
+### Make @HttpClient into a template for multiple classes
 
-create an annotation (such as `TemplateClient`) with HttpClient
+create an annotation with HttpClient
 
 ```java
 import yeamy.restlite.httpclient.JacksonRequestAdapter;
@@ -56,11 +56,11 @@ public @interface TemplateClient {
 }
 ```
 
-add `TemplateClient` for the interface
+add template for the interface
 
 ```java
 @TemplateClient
-// @HttpClient(maxTryTimes = 2) // can alse override attributes of TemplateClient
+// @HttpClient(maxTryTimes = 2) // can also override attributes of TemplateClient
 public interface DemoClient {// must be an interface
 }
 ```
