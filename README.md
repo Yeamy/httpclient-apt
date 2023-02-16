@@ -6,7 +6,7 @@ Generate simple http clients with Java APT. Base on Apache HttpClient5, more eff
 
 ## Dependencies
 Take gradle as an example
-```
+```gradle
 dependencies {
     // with gson
     implementation 'io.github.yeamy:httpclient-apt-gson:1.0.2'
