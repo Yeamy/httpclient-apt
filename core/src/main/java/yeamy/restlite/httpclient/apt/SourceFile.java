@@ -124,9 +124,19 @@ abstract class SourceFile {
         }
     }
 
+    private static final String[] systemType = {"int", "long", "short", "char", "boolean", "float", "double",
+            "int[]", "long[]", "short[]", "char[]", "boolean[]", "float[]", "double[]"};
+
     public String imports(String clz) {
         if (clz.length() == 0) {
             return "";
+        }
+        if (clz.lastIndexOf('.') == -1) {
+            for (String s : systemType) {
+                if (clz.equals(s)) {
+                    return clz;
+                }
+            }
         }
         if (clz.startsWith("java.lang.") && clz.indexOf('.', 10) == -1) {
             return clz.substring(10);
