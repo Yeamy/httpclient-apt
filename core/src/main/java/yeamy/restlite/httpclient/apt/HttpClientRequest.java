@@ -63,7 +63,7 @@ public @interface HttpClientRequest {
     Values[] header() default {};
 
     /**
-     * Add header of current request in a map.
+     * Add header of current request in a Map<>.
      *
      * @return param name in method with curly bracket
      */
@@ -77,7 +77,7 @@ public @interface HttpClientRequest {
     Values[] cookie() default {};
 
     /**
-     * Add cookie of current request in a map.
+     * Add cookie of current request in a Map<>.
      *
      * @return param name in method with curly bracket
      */

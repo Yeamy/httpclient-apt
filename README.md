@@ -84,11 +84,13 @@ public interface DemoClient {
 public interface DemoClient {
     @HttpClientRequest(
             uri = "http://localhost:8080/a/{u1}?x={{u2}}",
+            headerMap = "{m1}",
+            cookieMap = "{m2}",
             header = @Values(name = "h", value = "{h1}"),
             cookie = @Values(name = "v", value = "{c1}"),
             body = {@PartValues(name = "name", value = "{b1}")}
     )
-    String getPo(String u1, String u2, String c1, String h1, String b1);
+    String getPo(String u1, String u2, String c1, String h1, String b1, Map<?, String> m1, Map<String, String> m2);
 }
 ```
 
@@ -98,6 +100,8 @@ public interface DemoClient {
 | **{{u2}}** | uri       | double brackets keep the parameter without url encoded (uri only).   |
 | **{h1}**   | header    | define a parameter for header value.                                 |
 | **{c1}**   | cookie    | define a parameter for cookie value.                                 |
+| **{m1}**   | headerMap | define header parameters in a Map<>                                  |
+| **{m2}**   | cookieMap | define cookie parameters in a Map<>                                  |
 | **{b1}**   | body      | define a body parameter, the body will be serialized by the adapter. |
 
 ## How dose the lib choose attributes

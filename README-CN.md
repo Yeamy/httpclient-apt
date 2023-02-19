@@ -1,11 +1,14 @@
 # HttpClient-APT
+
 [![](https://img.shields.io/badge/platform-Java1.8+-red)](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase) [![](https://img.shields.io/github/license/Yeamy/httpclient-apt)](https://github.com/Yeamy/httpclient-apt/blob/master/LICENSE)   
 [English](README.md) | 中文
 
 通过Java APT生成http请求代码。基于Apache HttpClient5开发，效率高于OpenFeign和Forest的动态代理实现。
 
 ## 依赖关系
+
 以gradle为例
+
 ```gradle
 dependencies {
     // 使用gson
@@ -16,6 +19,7 @@ dependencies {
     //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.0.2'
 }
 ```
+
 ## 如何使用
 
 ### 为interface添加HttpClient注解
@@ -59,6 +63,7 @@ public @interface TemplateClient {
 为**接口**添加该模板注解
 
 ```java
+
 @TemplateClient
 // @HttpClient(maxTryTimes = 2) // 可以再次使用HttpClient覆盖TemplateClient的属性
 public interface DemoClient {// 必须是interface
@@ -84,21 +89,25 @@ public interface DemoClient {
 public interface DemoClient {
     @HttpClientRequest(
             uri = "http://localhost:8080/a/{u1}?x={{u2}}",
+            headerMap = "{m1}",
+            cookieMap = "{m2}",
             header = @Values(name = "h", value = "{h1}"),
             cookie = @Values(name = "v", value = "{c1}"),
             body = {@PartValues(name = "name", value = "{b1}")}
     )
-    String getPo(String u1, String u2, String c1, String h1, String b1);
+    String getPo(String u1, String u2, String c1, String h1, String b1, Map<?, String> m1, Map<String, String> m2);
 }
 ```
 
-| 变量         | 属性     | 用法                                 |
-|------------|--------|------------------------------------|
-| **{u1}**   | uri    | 为uri添加变量，该变量将会被URL编码。              |
-| **{{u2}}** | uri    | 两个大括号，让URI变量不被编码。                  |
-| **{h1}**   | header | 为header定义个变量值。                     |
-| **{c1}**   | cookie | 为cookie定义变量值。                      |
-| **{b1}**   | body   | 定义body变量，该变量将被serializeAdapter序列化。 |  
+| 变量         | 属性        | 用法                                 |
+|------------|-----------|------------------------------------|
+| **{u1}**   | uri       | 为uri添加变量，该变量将会被URL编码。              |
+| **{{u2}}** | uri       | 两个大括号，让URI变量不被编码。                  |
+| **{h1}**   | header    | 为header定义个变量值。                     |
+| **{c1}**   | cookie    | 为cookie定义变量值。                      |
+| **{m1}**   | headerMap | 多个header变量值，通过Map<>传入。             |
+| **{m2}**   | cookieMap | 多个cookie变量值，通过Map<>传入。             |
+| **{b1}**   | body      | 定义body变量，该变量将被serializeAdapter序列化。 |  
 
 ## 属性是如何被选择的
 
