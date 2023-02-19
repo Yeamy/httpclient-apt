@@ -14,10 +14,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 /**
  * SerializeAdapter with Google gson.<br>
@@ -30,9 +27,7 @@ import java.text.SimpleDateFormat;
  * @see SerializeAdapter
  */
 public class GsonRequestAdapter implements SerializeAdapter {
-    private static final ThreadLocal<Gson> gsonLocal = new ThreadLocal<>();
-    private static volatile GsonBuilder gsonBuilder = new GsonBuilder()
-            .setDateFormat("yyyy-MM-dd HH:mm:ss X")
+    protected static volatile Gson gson = new GsonBuilder()
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
                 public void write(JsonWriter out, BigDecimal value) throws IOException {
@@ -44,64 +39,70 @@ public class GsonRequestAdapter implements SerializeAdapter {
                     return new BigDecimal(in.nextString());
                 }
             })
-            .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
-                final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
-
+            .registerTypeAdapter(java.util.Date.class, new TypeAdapter<java.util.Date>() {
                 @Override
-                public void write(JsonWriter out, Date src) throws IOException {
-                    out.value(DF.format(src));
+                public void write(JsonWriter out, java.util.Date value) throws IOException {
+                    out.value(DATE_TIME_FORMAT.format(value));
                 }
 
                 @Override
-                public Date read(JsonReader in) throws IOException {
+                public java.util.Date read(JsonReader in) throws IOException {
                     try {
-                        return new Date(DF.parse(in.nextString()).getTime());
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
+                        return DATE_TIME_FORMAT.parse(in.nextString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+            })
+            .registerTypeAdapter(java.sql.Date.class, new TypeAdapter<java.sql.Date>() {
+                @Override
+                public void write(JsonWriter out, java.sql.Date value) throws IOException {
+                    out.value(DATE_FORMAT.format(value));
+                }
+
+                @Override
+                public java.sql.Date read(JsonReader in) throws IOException {
+                    try {
+                        return new java.sql.Date(DATE_FORMAT.parse(in.nextString()).getTime());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
                     }
                 }
             })
             .registerTypeAdapter(Time.class, new TypeAdapter<Time>() {
-                final SimpleDateFormat TF = new SimpleDateFormat("HH:mm:ss");
-
                 @Override
-                public void write(JsonWriter out, Time src) throws IOException {
-                    out.value(TF.format(src));
+                public void write(JsonWriter out, Time value) throws IOException {
+                    out.value(TIME_FORMAT.format(value));
                 }
 
                 @Override
                 public Time read(JsonReader in) throws IOException {
                     try {
-                        return new Time(TF.parse(in.nextString()).getTime());
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
+                        return new Time(TIME_FORMAT.parse(in.nextString()).getTime());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
                     }
                 }
-            });
-
-    public static Gson getGson() {
-        Gson gson = gsonLocal.get();
-        if (gson == null) {
-            gsonLocal.set(gson = gsonBuilder.create());
-        }
-        return gson;
-    }
+            }).create();
 
     /**
      * replace the gson
      */
-    public static void setGsonBuilder(GsonBuilder b) {
-        gsonBuilder = b;
+    public static void setGson(Gson gson) {
+        GsonRequestAdapter.gson = gson;
     }
 
 
     @Override
     public HttpEntity serializeAsBody(Object data, String contentType) {
-        return new StringEntity(getGson().toJson(data), ContentType.APPLICATION_JSON);
+        return new StringEntity(gson.toJson(data), ContentType.APPLICATION_JSON);
     }
 
     @Override
     public ContentBody serializeAsPart(Object data) {
-        return new StringBody(getGson().toJson(data), ContentType.APPLICATION_JSON);
+        return new StringBody(gson.toJson(data), ContentType.APPLICATION_JSON);
     }
 }

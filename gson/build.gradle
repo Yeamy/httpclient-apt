@@ -4,7 +4,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     mavenCentral()
