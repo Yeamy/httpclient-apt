@@ -20,6 +20,7 @@ public @interface HttpClientRequest {
     /**
      * Override the serializeAdapter or keep it with empty string.
      *
+     * @return class implement SerializeAdapter serialize request body
      * @see SerializeAdapter
      */
     Class<? extends SerializeAdapter> serializeAdapter() default NoSerializeAdapter.class;
@@ -27,14 +28,17 @@ public @interface HttpClientRequest {
     /**
      * Override the responseHandler or keep it with empty string.
      *
+     * @return class implement HttpClientResponseHandler handle response
      * @see HttpClientResponseHandler
      */
     Class<? extends HttpClientResponseHandler> responseHandler() default NoHttpClientResponseHandler.class;
 
     /**
      * Override the max execute times.
+     *
+     * @return max execute times
      */
-    int maxTryTimes() default 0;
+    int maxTryTimes() default 3;
 
     /**
      * If no defined will use httpclient default protocol.
@@ -52,6 +56,8 @@ public @interface HttpClientRequest {
 
     /**
      * Sub uri of current request
+     *
+     * @return Sub uri of current request
      */
     String uri() default "";
 
@@ -63,7 +69,7 @@ public @interface HttpClientRequest {
     Values[] header() default {};
 
     /**
-     * Add header of current request in a Map<>.
+     * Add header of current request in a Map&lt;&gt;.
      *
      * @return param name in method with curly bracket
      */
@@ -77,7 +83,7 @@ public @interface HttpClientRequest {
     Values[] cookie() default {};
 
     /**
-     * Add cookie of current request in a Map<>.
+     * Add cookie of current request in a Map&lt;&gt;.
      *
      * @return param name in method with curly bracket
      */
