@@ -1,7 +1,6 @@
 plugins {
     id 'java'
 }
-sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
 version '1.0-SNAPSHOT'
