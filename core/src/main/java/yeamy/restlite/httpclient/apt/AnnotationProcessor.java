@@ -38,24 +38,21 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (Element element : roundEnv.getElementsAnnotatedWith(HttpClient.class)) {
+        Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(HttpClient.class);
+        Set<Element> ifs = new HashSet<>(set);
+        for (Element element : set) {
             if (element.getKind() == ElementKind.ANNOTATION_TYPE) {
+                ifs.remove(element);
                 HttpClient template = element.getAnnotation(HttpClient.class);
                 Element type = processingEnv.getTypeUtils().asElement(element.asType());
                 for (Element element1 : roundEnv.getElementsAnnotatedWith((TypeElement) type)) {
-                    try {
-                        new SourceMethod(processingEnv, hasInjectProvider, (TypeElement) element1, template).create();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else if (element.getKind() == ElementKind.INTERFACE) {
-                try {
-                    new SourceMethod(processingEnv, hasInjectProvider, (TypeElement) element).create();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    ifs.remove(element1);
+                    new SourceMethod(processingEnv, hasInjectProvider, (TypeElement) element1, template).create();
                 }
             }
+        }
+        for (Element element : ifs) {
+            new SourceMethod(processingEnv, hasInjectProvider, (TypeElement) element).create();
         }
         return false;
     }

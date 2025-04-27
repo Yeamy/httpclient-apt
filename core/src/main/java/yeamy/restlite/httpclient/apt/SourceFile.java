@@ -8,7 +8,6 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
@@ -180,7 +179,7 @@ abstract class SourceFile {
         return clz + vp + ar;
     }
 
-    public void create() throws IOException {
+    public void create() {
         String file = pkg + '.' + className;
         JavaFileObject f;
         try {
@@ -209,6 +208,8 @@ abstract class SourceFile {
         try (OutputStream os = f.openOutputStream()) {
             os.write(sb.toString().getBytes());
             os.flush();
+        } catch (Exception e) {
+            env.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
     }
 
