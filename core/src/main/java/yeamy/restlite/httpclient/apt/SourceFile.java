@@ -33,29 +33,7 @@ abstract class SourceFile {
 
     public SourceFile(ProcessingEnvironment env, boolean hasInjectProvider, TypeElement type, HttpClient template) {
         HttpClient client = type.getAnnotation(HttpClient.class);
-        if (client == null) {
-            createConstant = true;
-            serializeAdapter = serializeAdapter(template);
-            responseHandler = responseHandler(template);
-            className = type.getSimpleName() + "Impl";
-            httpMethod = template.method();
-            baseUri = template.uri();
-            protocol = template.protocol();
-            header = template.header();
-            cookie = template.cookie();
-            maxTryTimes = template.maxTryTimes();
-        } else if (template == null) {
-            createConstant = client.createConstant();
-            serializeAdapter = serializeAdapter(client);
-            responseHandler = responseHandler(client);
-            className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
-            httpMethod = client.method();
-            baseUri = client.uri();
-            protocol = client.protocol();
-            header = client.header();
-            cookie = client.cookie();
-            maxTryTimes = client.maxTryTimes();
-        } else {
+        if (client != null && template != null) {
             createConstant = client.createConstant();
             serializeAdapter = serializeAdapter(client, template);
             responseHandler = responseHandler(client, template);
@@ -66,6 +44,29 @@ abstract class SourceFile {
             header = appendArray(template.header(), client.header());
             cookie = appendArray(template.cookie(), client.cookie());
             maxTryTimes = firstGreaterThan(0, client.maxTryTimes(), template.maxTryTimes());
+        } else if (template != null) {
+            createConstant = true;
+            serializeAdapter = serializeAdapter(template);
+            responseHandler = responseHandler(template);
+            className = type.getSimpleName() + "Impl";
+            httpMethod = template.method();
+            baseUri = template.uri();
+            protocol = template.protocol();
+            header = template.header();
+            cookie = template.cookie();
+            maxTryTimes = template.maxTryTimes();
+        } else {
+            assert client != null;
+            createConstant = client.createConstant();
+            serializeAdapter = serializeAdapter(client);
+            responseHandler = responseHandler(client);
+            className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
+            httpMethod = client.method();
+            baseUri = client.uri();
+            protocol = client.protocol();
+            header = client.header();
+            cookie = client.cookie();
+            maxTryTimes = client.maxTryTimes();
         }
         this.env = env;
         this.types = env.getTypeUtils();
@@ -181,7 +182,12 @@ abstract class SourceFile {
 
     public void create() throws IOException {
         String file = pkg + '.' + className;
-        JavaFileObject f = env.getFiler().createSourceFile(file);
+        JavaFileObject f;
+        try {
+            f = env.getFiler().createSourceFile(file);
+        } catch (Exception e) {
+            return;
+        }
         StringBuilder methods = new StringBuilder();
         for (ExecutableElement e : this.methods) {
             createMethod(methods, e);

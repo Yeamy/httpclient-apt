@@ -38,7 +38,7 @@ public @interface HttpClientRequest {
      *
      * @return max execute times
      */
-    int maxTryTimes() default 3;
+    int maxTryTimes() default 0;
 
     /**
      * If no defined will use httpclient default protocol.

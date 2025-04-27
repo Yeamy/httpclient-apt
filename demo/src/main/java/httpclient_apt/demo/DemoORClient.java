@@ -11,7 +11,7 @@ public interface DemoORClient {
 
     @HttpClientRequest(
             uri = "/baidu",
-            maxTryTimes = 3)
+            maxTryTimes = 1)
     Object get();
 
     @HttpClientRequest(
