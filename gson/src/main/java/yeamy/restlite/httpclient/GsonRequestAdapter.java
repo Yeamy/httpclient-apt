@@ -19,15 +19,15 @@ import java.sql.Time;
 /**
  * SerializeAdapter with Google gson.<br>
  * date format: yyyy-MM-dd HH:mm:ss X
- * <pre>
- * &nbsp;@HttpClient(requestAdapter = "yeamy.restlite.httpclient.GsonRequestAdapter")
- *  public interface XXX {
- *  }
- * </pre>
- * @see SerializeAdapter
+ * <pre>{@code
+ * HttpClient(serializeAdapter = GsonRequestAdapter.class,
+ *            responseHandler = GsonResponseHandler.class)
+ * public interface XXX {
+ * }
+ * }</pre>
  */
 public class GsonRequestAdapter implements SerializeAdapter {
-    protected static volatile Gson gson = new GsonBuilder()
+    protected static Gson gson = new GsonBuilder()
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
                 public void write(JsonWriter out, BigDecimal value) throws IOException {
@@ -88,21 +88,13 @@ public class GsonRequestAdapter implements SerializeAdapter {
                 }
             }).create();
 
-    /**
-     * replace the gson
-     */
-    public static void setGson(Gson gson) {
-        GsonRequestAdapter.gson = gson;
-    }
-
-
     @Override
-    public HttpEntity serializeAsBody(Object data, String contentType) {
-        return new StringEntity(gson.toJson(data), ContentType.APPLICATION_JSON);
-    }
-
-    @Override
-    public ContentBody serializeAsPart(Object data) {
+    public ContentBody serializeAsBody(Object data) {
         return new StringBody(gson.toJson(data), ContentType.APPLICATION_JSON);
+    }
+
+    @Override
+    public HttpEntity serializeAsPart(Object data, String contentType) {
+        return new StringEntity(gson.toJson(data), ContentType.APPLICATION_JSON);
     }
 }

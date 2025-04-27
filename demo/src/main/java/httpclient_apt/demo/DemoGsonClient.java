@@ -1,5 +1,6 @@
 package httpclient_apt.demo;
 
+import httpclient_apt.demo.bean.BodyBean;
 import yeamy.restlite.httpclient.apt.HttpClientRequest;
 import yeamy.restlite.httpclient.apt.PartValues;
 import yeamy.restlite.httpclient.apt.Values;
@@ -17,6 +18,11 @@ public interface DemoGsonClient {
             body = {@PartValues(name = "name", value = "{body}")}
     )
     String getPo(String u1, String u2, String c1, String h1, String body);
+
+    @HttpClientRequest(uri = "/a/{u1}?x={{u2}}",
+            body = {@PartValues(name = "name", value = "{body}")}
+    )
+    String getPo(String u1, String u2, BodyBean body);
 
     //    @HttpClientRequest(uri = "/a", method = "POST")
     String post(String a);

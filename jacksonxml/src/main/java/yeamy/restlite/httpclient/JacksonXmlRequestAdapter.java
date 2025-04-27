@@ -28,10 +28,11 @@ import java.util.Date;
  *  public interface XXX {
  *  }
  * </pre>
+ *
  * @see SerializeAdapter
  */
 public class JacksonXmlRequestAdapter implements SerializeAdapter {
-    protected static volatile XmlMapper jackson = (XmlMapper) new XmlMapper().registerModule(new DateFormatModule());
+    protected static XmlMapper jackson = (XmlMapper) new XmlMapper().registerModule(new DateFormatModule());
 
     private static class DateFormatModule extends SimpleModule {
         public DateFormatModule() {
@@ -89,21 +90,13 @@ public class JacksonXmlRequestAdapter implements SerializeAdapter {
         }
     }
 
-    /**
-     * replace the jackson
-     */
-    public static void setXmlJackson(XmlMapper mapper) {
-        jackson = mapper;
-    }
-
-
     @Override
-    public HttpEntity serializeAsBody(Object data, String contentType) throws IOException {
-        return new StringEntity(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
-    }
-
-    @Override
-    public ContentBody serializeAsPart(Object data) throws IOException {
+    public ContentBody serializeAsBody(Object data) throws IOException {
         return new StringBody(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
+    }
+
+    @Override
+    public HttpEntity serializeAsPart(Object data, String contentType) throws IOException {
+        return new StringEntity(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
     }
 }

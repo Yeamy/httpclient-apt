@@ -10,12 +10,12 @@ import java.io.IOException;
 
 public final class NoSerializeAdapter implements SerializeAdapter {
     @Override
-    public HttpEntity serializeAsBody(Object data, String contentType) throws IOException {
-        return new StringEntity("");
+    public ContentBody serializeAsBody(Object data) throws IOException {
+        return new StringBody("", ContentType.TEXT_PLAIN);
     }
 
     @Override
-    public ContentBody serializeAsPart(Object data) throws IOException {
-        return new StringBody("", ContentType.TEXT_PLAIN);
+    public HttpEntity serializeAsPart(Object data, String contentType) throws IOException {
+        return new StringEntity("");
     }
 }

@@ -24,10 +24,11 @@ import java.util.Date;
  *  public interface XXX {
  *  }
  * </pre>
+ *
  * @see SerializeAdapter
  */
 public class JacksonRequestAdapter implements SerializeAdapter {
-    protected static volatile ObjectMapper jackson = new ObjectMapper().registerModule(new DateFormatModule());
+    protected static ObjectMapper jackson = new ObjectMapper().registerModule(new DateFormatModule());
 
     private static class DateFormatModule extends SimpleModule {
         public DateFormatModule() {
@@ -85,20 +86,13 @@ public class JacksonRequestAdapter implements SerializeAdapter {
         }
     }
 
-    /**
-     * replace the jackson
-     */
-    public static void setJackson(ObjectMapper mapper) {
-        jackson = mapper;
-    }
-
     @Override
-    public HttpEntity serializeAsBody(Object data, String contentType) throws IOException {
-        return new StringEntity(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
-    }
-
-    @Override
-    public ContentBody serializeAsPart(Object data) throws IOException {
+    public ContentBody serializeAsBody(Object data) throws IOException {
         return new StringBody(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
+    }
+
+    @Override
+    public HttpEntity serializeAsPart(Object data, String contentType) throws IOException {
+        return new StringEntity(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
     }
 }

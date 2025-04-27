@@ -286,8 +286,8 @@ class SourceMethod extends SourceFile {
                     printError(msg);
                     content.append("/*").append(msg).append("*/;");
                 } else {
-                    content.append(imports(serializeAdapter(req, this.serializeAdapter)))
-                            .append("().serializeAsBody(").append(pName).append(",\"").append(contentType).append("\");");
+                    content.append("new ").append(imports(serializeAdapter(req, this.serializeAdapter)))
+                            .append("().serializeAsBody(").append(pName).append(");");
                 }
         }
     }
@@ -370,7 +370,7 @@ class SourceMethod extends SourceFile {
                     content.append("/*").append(msg).append("*/;");
                 } else {
                     content.append(imports(serializeAdapter(req, this.serializeAdapter)))
-                            .append("().serializeAsBody(").append(pName).append(",\"").append(contentType).append("\");");
+                            .append("().serializeAsPart(").append(pName).append(",\"").append(contentType).append("\");");
                 }
         }
     }
