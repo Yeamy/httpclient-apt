@@ -1,6 +1,5 @@
 package yeamy.restlite.httpclient;
 
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -8,8 +7,6 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * http client executor

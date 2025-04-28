@@ -34,6 +34,12 @@ public interface DemoClient {
     String getPo(String u1, String u2, String c1, String h1, String body,
                  Map<?, String> m1, Map<String, List<String>> m2);
 
+    @HttpClientRequest(uri = "/form",
+            header = @Values(name = "Content-Type", value = "application/x-www-form-urlencoded"),
+            body = @PartValues("a={b1}&b={b2}")
+    )
+    String form(String b1, String b2);
+
     //    @HttpClientRequest(uri = "/a", method = "POST")
     String post(String a);
 }

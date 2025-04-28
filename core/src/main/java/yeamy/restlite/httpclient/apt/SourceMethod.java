@@ -11,6 +11,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static yeamy.restlite.httpclient.apt.Utils.*;
 
@@ -60,8 +61,7 @@ class SourceMethod extends SourceFile {
         }
     }
 
-    private void uri(StringBuilder content, HttpClientRequest req, String method,
-                     LinkedHashMap<String, VariableElement> params) {
+    private void uri(StringBuilder content, HttpClientRequest req, String method, Map<String, VariableElement> params) {
         String uri = this.baseUri + req.uri();
         if (TextUtils.isEmpty(uri)) {
             content.append("return null;// ERROR");
@@ -69,41 +69,47 @@ class SourceMethod extends SourceFile {
             printError(msg);
             throw new RuntimeException(msg);
         }
-        StringBuilder sb = new StringBuilder("String uri = \"");
+        try {
+            CharSequence sb = replaceArgs(uri, params);
+            content.append("String uri = ").append(sb).append(';');
+        } catch (ParamNotFoundException e) {
+            content.append("return null;// ERROR");
+            String msg = "Missing uri param '" + e.pName() + "': " + this.className + '.' + method;
+            printError(msg);
+            throw new RuntimeException(msg);
+        }
+    }
+
+    private CharSequence replaceArgs(String src, Map<String, VariableElement> params) throws ParamNotFoundException {
+        StringBuilder sb = new StringBuilder();
+        src = src.replace("\"", "\\\"");
         int from = 0;
         while (true) {
-            int begin = uri.indexOf('{', from);
+            int begin = src.indexOf('{', from);
             if (begin == -1) {
-                sb.append(uri, from, uri.length());
+                if (sb.length() > 0) sb.append('+');
+                sb.append('"').append(src, from, src.length()).append('"');
                 break;
             }
-            int end = uri.indexOf('}', begin);
-            if (uri.charAt(end + 1) == '}') end++;
-            String pName = uri.substring(begin + 1, end);
+            int end = src.indexOf('}', begin);
+            if (src.charAt(begin + 1) == '{' && src.charAt(end + 1) == '}') end++;
+            String pName = src.substring(begin + 1, end);
             boolean noEncode = isParam(pName);
             if (noEncode) pName = getParamName(pName);
             if (!params.containsKey(pName)) {
-                content.append("return null;// ERROR");
-                String msg = "Missing uri param '" + pName + "': " + this.className + '.' + method;
-                printError(msg);
-                throw new RuntimeException(msg);
+                throw new ParamNotFoundException(pName);
             }
-            if (from > 0) sb.append('+');
-            sb.append(uri, from, begin).append("\" + ");
+            if (sb.length() > 0) sb.append('+');
+            sb.append('"').append(src, from, begin).append("\" + ");
             if (noEncode) {
                 sb.append(pName);
             } else {
                 sb.append("encodeUrl(").append(pName).append(')');
             }
-            sb.append("+\"");
             from = end + 1;
+            if (from == src.length()) break;
         }
-        if (sb.charAt(sb.length() - 2) == '+' && sb.charAt(sb.length() - 1) == '"') {
-            sb.delete(sb.length() - 2, sb.length()).append(';');
-        } else {
-            sb.append("\";");
-        }
-        content.append(sb);
+        return sb;
     }
 
     private void protocol(StringBuilder content, HttpClientRequest req) {
@@ -122,12 +128,9 @@ class SourceMethod extends SourceFile {
         return MAP;
     }
 
-    private void headerMap(StringBuilder content, HttpClientRequest req, String method,
-                           LinkedHashMap<String, VariableElement> params) {
+    private void headerMap(StringBuilder content, HttpClientRequest req, String method, Map<String, VariableElement> params) {
         String headerMap = req.headerMap();
-        if (headerMap.length() == 0) {
-            return;
-        }
+        if (headerMap.isEmpty()) return;
         if (isParam(headerMap)) {
             headerMap = getParamName(headerMap);
             VariableElement e = params.get(headerMap);
@@ -150,8 +153,7 @@ class SourceMethod extends SourceFile {
         }
     }
 
-    private void header(StringBuilder content, HttpClientRequest req, String method,
-                        LinkedHashMap<String, VariableElement> params) {
+    private void header(StringBuilder content, HttpClientRequest req, String method, Map<String, VariableElement> params) {
         ArrayList<Values> headers = new ArrayList<>();
         Collections.addAll(headers, this.header);
         Collections.addAll(headers, req.header());
@@ -180,12 +182,9 @@ class SourceMethod extends SourceFile {
         }
     }
 
-    private void cookieMap(StringBuilder content, HttpClientRequest req, String method,
-                           LinkedHashMap<String, VariableElement> params) {
+    private void cookieMap(StringBuilder content, HttpClientRequest req, String method, Map<String, VariableElement> params) {
         String cookieMap = req.cookieMap();
-        if (cookieMap.length() == 0) {
-            return;
-        }
+        if (cookieMap.isEmpty()) return;
         if (isParam(cookieMap)) {
             cookieMap = getParamName(cookieMap);
             VariableElement e = params.get(cookieMap);
@@ -208,8 +207,7 @@ class SourceMethod extends SourceFile {
         }
     }
 
-    private void cookie(StringBuilder content, HttpClientRequest req, String method,
-                        LinkedHashMap<String, VariableElement> params) {
+    private void cookie(StringBuilder content, HttpClientRequest req, String method, Map<String, VariableElement> params) {
         StringBuilder temp = new StringBuilder();
         cookieMap(temp, req, method, params);
         ArrayList<Values> cookies = new ArrayList<>();
@@ -245,13 +243,19 @@ class SourceMethod extends SourceFile {
         }
     }
 
-    private void body(StringBuilder content, HttpClientRequest req, PartValues body, String method,
-                      LinkedHashMap<String, VariableElement> params) {
+    private void body(StringBuilder content, HttpClientRequest req, PartValues body, String method, Map<String, VariableElement> params) {
         String pName = body.value();
         if (isParam(pName)) {
             pName = getParamName(pName);
         } else {
-            bodyString(content, "\"" + pName.replace("\"", "\\\"") + '"', body.contentType());
+            try {
+                CharSequence data = replaceArgs(pName, params);
+                bodyString(content, data, body.contentType());
+            } catch (ParamNotFoundException e) {
+                content.append("return null;// ERROR");
+                String msg = "Missing body param '" + e.pName() + "': " + this.className + '.' + method;
+                printError(msg);
+            }
             return;
         }
         VariableElement e = params.get(pName);
@@ -292,7 +296,7 @@ class SourceMethod extends SourceFile {
         }
     }
 
-    private void bodyString(StringBuilder content, String pName, String contentType) {
+    private void bodyString(StringBuilder content, CharSequence pName, String contentType) {
         content.append("req.setEntity(new ").append(imports("org.apache.hc.core5.http.io.entity.StringEntity"))
                 .append('(').append(pName);
         if (contentType.length() > 0) {
@@ -305,7 +309,7 @@ class SourceMethod extends SourceFile {
     private void bodyBinary(StringBuilder content, String entity, String pName, String contentType) {
         content.append("req.setEntity(new ").append(imports(entity)).append('(').append(pName)
                 .append(',').append(imports("org.apache.hc.core5.http.ContentType"));
-        if (contentType.length() == 0) {
+        if (contentType.isEmpty()) {
             content.append(".DEFAULT_BINARY").append(')');
         } else {
             content.append(".create(\"").append(contentType).append("\")");

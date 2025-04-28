@@ -43,7 +43,7 @@ public class Utils {
     }
 
     public static boolean isParam(String value) {
-        return value.charAt(0) == '{' && value.charAt(value.length() - 1) == '}';
+        return value.charAt(0) == '{' && value.indexOf('}') == value.length() - 1;
     }
 
     public static String getParamName(String value) {
