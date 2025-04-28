@@ -65,7 +65,10 @@ class SourceMethod extends SourceFile {
     }
 
     private void uri(StringBuilder content, HttpClientRequest req, String method, Map<String, VariableElement> params) {
-        String uri = this.baseUri + req.uri();
+        String prefix = req.uri().substring(0, 8).toLowerCase();
+        String uri = (prefix.startsWith("http://") || prefix.equals("https://"))
+                ? req.uri()
+                : this.baseUri + req.uri();
         if (TextUtils.isEmpty(uri)) {
             content.append("return null;// ERROR");
             String msg = "Uri cannot be empty: " + this.className + '.' + method;

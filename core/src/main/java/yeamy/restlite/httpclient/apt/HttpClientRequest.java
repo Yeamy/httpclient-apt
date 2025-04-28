@@ -56,11 +56,12 @@ public @interface HttpClientRequest {
     String method() default "";
 
     /**
-     * Sub uri of request.
-     * The full url = {@link HttpClient#uri()} + HttpClientRequest.uri()<br>
+     * Full url with http scheme or second half url of request.<br>
+     * if <b>no scheme</b>: the full url = HttpClient.uri() + HttpClientRequest.uri()<br>
      * Allow parameters in {}, or {{}}
      *
-     * @return Sub uri of request.
+     * @return uri of request.
+     * @see HttpClient#uri()
      */
     String uri() default "";
 

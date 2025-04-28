@@ -80,8 +80,7 @@ public @interface HttpClient {
     String method() default "";
 
     /**
-     * Base uri of request.<br>
-     * The full url = HttpClient.uri() + {@link HttpClientRequest#uri()}
+     * Base uri (first half url) of request.<br>
      *
      * @return Base uri of request.
      */

@@ -116,11 +116,11 @@ if http method not defined(empty string), will using "GET" or "POST" (if the req
 
 ### The complete uri will be the base uri append the sub uri:
 
-**base uri:** HttpClient's (or `TemplateClient`'s) uri.
+**Full url:** HttpClientRequest.uri() with http scheme, or base uri + sub uri.
 
-**sub uri:** HttpClientRequest's uri.
+**base uri:** using `template annotation`.uri() as the first half url if not exist HttpClient nor HttpClient.uri() is empty.
 
-**Complete uri:** base uri + sub uri.
+**sub uri:** using HttpClientRequest.uri() as the second half url.
 
 ### The headers and cookies:
 

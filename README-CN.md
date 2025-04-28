@@ -120,11 +120,11 @@ public interface DemoClient {// 必须是interface
 
 ### 完整的URI由基础URI加上子URI组成:
 
-**基础uri:** HttpClient的uri 或者 `TemplateClient`的uri.
+**完整uri:** 带有http协议头的HttpClientRequest.uri()，或者 = 前半段uri + 后半段uri.
 
-**子uri:** HttpClientRequest的uri.
+**前半段uri:** HttpClient.uri() 或者 `模板声明`.uri()（前者为空时）.
 
-**完整uri:** 基础uri + 子uri.
+**后半段uri:** HttpClientRequest.uri().
 
 ### headers和cookies:
 
