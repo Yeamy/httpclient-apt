@@ -6,6 +6,9 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
 import java.io.IOException;
 
+/**
+ * default HttpClientResponseHandler return null
+ */
 public final class NoHttpClientResponseHandler implements HttpClientResponseHandler<Object> {
     @Override
     public Object handleResponse(ClassicHttpResponse response) throws HttpException, IOException {

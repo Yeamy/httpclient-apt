@@ -11,11 +11,11 @@ import java.io.InputStream;
 
 /**
  * HttpClientResponseHandler with Google gson.
- * <pre>
- * &nbsp;@HttpClient(responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler")
- *  public interface XXX {
- *  }
- * </pre>
+ * <pre>{@code
+ * @HttpClient(responseHandler = "yeamy.restlite.httpclient.GsonResponseHandler")
+ * public interface XXX {
+ * }
+ * }</pre>
  * @see HttpClientResponseHandler
  */
 public class GsonResponseHandler<T> implements HttpClientResponseHandler<T> {

@@ -12,14 +12,33 @@ import java.lang.annotation.Target;
 
 /**
  * Declare an interface to generate an implements class
+ * <pre>{@code
+ * @HttpClient(uri = "https://example.com")
+ *     serializeAdapter = GsonRequestAdapter.class,
+ *     responseHandler = GsonResponseHandler.class
+ * )
+ * public interface ExampleClient {
+ *     @HttpClientRequest(uri = "/a/{p1}?x={{ keepWithoutUriEncode }}")
+ *     String get(String p1, String keepWithoutUriEncode);
+ *
+ *     @HttpClientRequest(uri = "/login",
+ *             header = @Values(name = "Content-Type", value = "application/x-www-form-urlencoded"),
+ *             body = @PartValues(value = "name={p1}&pwd={p2}")
+ *     )
+ *    String login(String p1, String p2);
+ * }
+ * }</pre>
+ *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)// For inherit
 public @interface HttpClient {
 
     /**
+     * name of class to generate. if empty, class name will be interface's qualified name with suffix "Impl".<br>
+     * eg. com.example.Interface -> com.example.InterfaceImpl
+     *
      * @return name of class to generate,
-     * if empty, class name will be like interface name with suffix "Impl"
      */
     String className() default "";
 
@@ -35,6 +54,7 @@ public @interface HttpClient {
     Class<? extends SerializeAdapter> serializeAdapter() default NoSerializeAdapter.class;
 
     /**
+     * Deserialize the response data from httpClient.
      * @return Class name of HttpClientResponseHandler.
      * @see HttpClientResponseHandler
      */
@@ -60,8 +80,10 @@ public @interface HttpClient {
     String method() default "";
 
     /**
-     * @return Base uri of request.<br>
-     * The full uri is HttpClient.uri() + HttpClientRequest.uri()
+     * Base uri of request.<br>
+     * The full url = HttpClient.uri() + {@link HttpClientRequest#uri()}
+     *
+     * @return Base uri of request.
      */
     String uri() default "";
 

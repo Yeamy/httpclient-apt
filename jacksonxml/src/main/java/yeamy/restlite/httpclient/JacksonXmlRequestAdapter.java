@@ -20,11 +20,11 @@ import java.util.Date;
 /**
  * SerializeAdapter with jackson.<br>
  * date format: yyyy-MM-dd HH:mm:ss X
- * <pre>
- * &nbsp;@HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonXmlRequestAdapter")
- *  public interface XXX {
- *  }
- * </pre>
+ * <pre>{@code
+ * @HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonXmlRequestAdapter")
+ * public interface XXX {
+ * }
+ * }</pre>
  *
  * @see SerializeAdapter
  */

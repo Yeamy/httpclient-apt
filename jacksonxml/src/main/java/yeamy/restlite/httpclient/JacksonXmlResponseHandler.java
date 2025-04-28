@@ -11,11 +11,11 @@ import java.io.InputStream;
 
 /**
  * HttpClientResponseHandler with jackson.
- * <pre>
- * &nbsp;@HttpClient(responseHandler = "yeamy.restlite.httpclient.JacksonXmlResponseHandler")
- *  public interface XXX {
- *  }
- * </pre>
+ * <pre>{@code
+ * @HttpClient(responseHandler = "yeamy.restlite.httpclient.JacksonXmlResponseHandler")
+ * public interface XXX {
+ * }
+ * }</pre>
  * @see HttpClientResponseHandler
  */
 public class JacksonXmlResponseHandler<T> implements HttpClientResponseHandler<T> {

@@ -20,7 +20,7 @@ abstract class SourceFile {
     private final boolean hasInjectProvider;
     protected final TypeElement type;
     private final String pkg;
-    protected final String className;
+    protected final String className;// qualified name
     protected final String httpMethod, baseUri;
     protected final Protocol protocol;
     protected final Values[] header, cookie;
@@ -36,7 +36,7 @@ abstract class SourceFile {
             createConstant = client.createConstant();
             serializeAdapter = serializeAdapter(client, template);
             responseHandler = responseHandler(client, template);
-            className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
+            className = firstNotEmpty(client.className(), type.getQualifiedName() + "Impl");
             httpMethod = firstNotEmpty(client.method(), template.method());
             baseUri = firstNotEmpty(client.uri(), template.uri());
             protocol = firstNotEquals(Protocol.NOT_DEFINED, client.protocol(), template.protocol());
@@ -47,7 +47,7 @@ abstract class SourceFile {
             createConstant = true;
             serializeAdapter = serializeAdapter(template);
             responseHandler = responseHandler(template);
-            className = type.getSimpleName() + "Impl";
+            className = type.getQualifiedName() + "Impl";
             httpMethod = template.method();
             baseUri = template.uri();
             protocol = template.protocol();
@@ -59,7 +59,7 @@ abstract class SourceFile {
             createConstant = client.createConstant();
             serializeAdapter = serializeAdapter(client);
             responseHandler = responseHandler(client);
-            className = firstNotEmpty(client.className(), type.getSimpleName() + "Impl");
+            className = firstNotEmpty(client.className(), type.getQualifiedName() + "Impl");
             httpMethod = client.method();
             baseUri = client.uri();
             protocol = client.protocol();
@@ -180,10 +180,9 @@ abstract class SourceFile {
     }
 
     public void create() {
-        String file = pkg + '.' + className;
         JavaFileObject f;
         try {
-            f = env.getFiler().createSourceFile(file);
+            f = env.getFiler().createSourceFile(className);
         } catch (Exception e) {
             return;
         }

@@ -15,12 +15,12 @@ import java.util.Date;
 
 /**
  * SerializeAdapter with jackson.<br>
- * date format: yyyy-MM-dd HH:mm:ss X
- * <pre>
- * &nbsp;@HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonRequestAdapter")
- *  public interface XXX {
- *  }
- * </pre>
+ * date format: yyyy-MM-dd HH:mm:ss
+ * <pre>{@code
+ * @HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonRequestAdapter")
+ * public interface XXX {
+ * }
+ * }</pre>
  *
  * @see SerializeAdapter
  */

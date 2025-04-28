@@ -37,6 +37,7 @@ public @interface HttpClientRequest {
      * Override the max execute times.
      *
      * @return max execute times
+     * @see HttpClient#maxTryTimes()
      */
     int maxTryTimes() default 0;
 
@@ -48,16 +49,18 @@ public @interface HttpClientRequest {
     Protocol protocol() default Protocol.NOT_DEFINED;
 
     /**
-     * Override the http method(support custom method), if empty used "GET"
+     * Override the http method(support custom method), if empty used "GET" or "POST"(if {@link #body()} not empty)
      *
      * @return may be one of the standard uppercase http method
      */
     String method() default "";
 
     /**
-     * Sub uri of current request
+     * Sub uri of request.
+     * The full url = {@link HttpClient#uri()} + HttpClientRequest.uri()<br>
+     * Allow parameters in {}, or {{}}
      *
-     * @return Sub uri of current request
+     * @return Sub uri of request.
      */
     String uri() default "";
 
