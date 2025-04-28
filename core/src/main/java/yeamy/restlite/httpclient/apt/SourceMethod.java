@@ -8,6 +8,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -284,15 +286,27 @@ class SourceMethod extends SourceFile {
             }
             break;
             default:
-                String responseHandler = responseHandler(req, this.responseHandler);
-                if (TextUtils.isBlank(responseHandler)) {
-                    String msg = "ResponseHandler cannot be empty: class " + type.getQualifiedName();
-                    printError(msg);
-                    content.append("/*").append(msg).append("*/;");
-                } else {
-                    content.append("new ").append(imports(serializeAdapter(req, this.serializeAdapter)))
-                            .append("().serializeAsBody(").append(pName).append(");");
+                String serializeAdapter = serializeAdapter(req, this.serializeAdapter);
+                if (serializeAdapter.equals("yeamy.restlite.httpclient.NoSerializeAdapter")) return;
+                Elements utils = env.getElementUtils();
+                TypeElement te = utils.getTypeElement(serializeAdapter);
+                final String T_SerializeAdapter = "yeamy.restlite.httpclient.SerializeAdapter";
+                final int l = T_SerializeAdapter.length();
+                Types tUtils = env.getTypeUtils();
+                for (TypeMirror m : te.getInterfaces()) {
+                    String type = m.toString();
+                    if (!type.startsWith(T_SerializeAdapter)) continue;
+                    if (type.length() == l) break;
+                    if (type.charAt(l) != '<') continue;
+                    String varType = type.substring(l + 1, type.length() - 1);
+                    TypeMirror vt = utils.getTypeElement(varType).asType();
+                    TypeMirror pt = e.asType();
+                    if (tUtils.isAssignable(pt, vt)) break;
+                    printError(serializeAdapter + "cannot serialize type " + pt + " in " + this.type.getQualifiedName() + "." + method + "()");
+                    return;
                 }
+                content.append("req.setEntity(new ").append(imports(serializeAdapter))
+                        .append("().doSerialize(").append(pName).append(",\"").append(contentType).append("\"));");
         }
     }
 

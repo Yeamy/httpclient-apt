@@ -26,7 +26,7 @@ import java.sql.Time;
  * }
  * }</pre>
  */
-public class GsonRequestAdapter implements SerializeAdapter {
+public class GsonRequestAdapter implements SerializeAdapter<Object> {
     protected static Gson gson = new GsonBuilder()
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
@@ -42,59 +42,39 @@ public class GsonRequestAdapter implements SerializeAdapter {
             .registerTypeAdapter(java.util.Date.class, new TypeAdapter<java.util.Date>() {
                 @Override
                 public void write(JsonWriter out, java.util.Date value) throws IOException {
-                    out.value(DATE_TIME_FORMAT.format(value));
+                    out.value(DateTimeUtil.format(value));
                 }
 
                 @Override
                 public java.util.Date read(JsonReader in) throws IOException {
-                    try {
-                        return DATE_TIME_FORMAT.parse(in.nextString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
+                    return DateTimeUtil.parseDateTime(in.nextString());
                 }
             })
             .registerTypeAdapter(java.sql.Date.class, new TypeAdapter<java.sql.Date>() {
                 @Override
                 public void write(JsonWriter out, java.sql.Date value) throws IOException {
-                    out.value(DATE_FORMAT.format(value));
+                    out.value(DateTimeUtil.format(value));
                 }
 
                 @Override
                 public java.sql.Date read(JsonReader in) throws IOException {
-                    try {
-                        return new java.sql.Date(DATE_FORMAT.parse(in.nextString()).getTime());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
+                    return DateTimeUtil.parseDate(in.nextString());
                 }
             })
             .registerTypeAdapter(Time.class, new TypeAdapter<Time>() {
                 @Override
                 public void write(JsonWriter out, Time value) throws IOException {
-                    out.value(TIME_FORMAT.format(value));
+                    out.value(DateTimeUtil.format(value));
                 }
 
                 @Override
                 public Time read(JsonReader in) throws IOException {
-                    try {
-                        return new Time(TIME_FORMAT.parse(in.nextString()).getTime());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
+                    return DateTimeUtil.parseTime(in.nextString());
                 }
             }).create();
 
     @Override
-    public ContentBody serializeAsBody(Object data) {
-        return new StringBody(gson.toJson(data), ContentType.APPLICATION_JSON);
-    }
-
-    @Override
-    public HttpEntity serializeAsPart(Object data, String contentType) {
+    public HttpEntity doSerialize(Object data, String contentType) {
         return new StringEntity(gson.toJson(data), ContentType.APPLICATION_JSON);
     }
 }

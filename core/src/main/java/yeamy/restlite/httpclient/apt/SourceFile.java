@@ -14,7 +14,7 @@ import java.util.*;
 import static yeamy.restlite.httpclient.apt.Utils.*;
 
 abstract class SourceFile {
-    private final ProcessingEnvironment env;
+    protected final ProcessingEnvironment env;
     protected final Elements elements;
     protected final Types types;
     private final boolean hasInjectProvider;
