@@ -3,12 +3,8 @@ package yeamy.restlite.httpclient;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -18,18 +14,18 @@ import java.sql.Time;
 import java.util.Date;
 
 /**
- * SerializeAdapter with jackson.<br>
- * date format: yyyy-MM-dd HH:mm:ss X
+ * HttpClientRequestBodyHandler with jackson.<br>
+ * date format: yyyy-MM-dd HH:mm:ss
  * <pre>{@code
- * @HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonXmlRequestAdapter")
+ * @HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonRequestHandler")
  * public interface XXX {
  * }
  * }</pre>
  *
- * @see SerializeAdapter
+ * @see HttpClientRequestBodyHandler
  */
-public class JacksonXmlRequestAdapter implements SerializeAdapter<Object> {
-    protected static XmlMapper jackson = (XmlMapper) new XmlMapper().registerModule(new DateFormatModule());
+public class JacksonRequestHandler implements HttpClientRequestBodyHandler<Object> {
+    protected static ObjectMapper jackson = new ObjectMapper().registerModule(new DateFormatModule());
 
     private static class DateFormatModule extends SimpleModule {
         public DateFormatModule() {
@@ -76,7 +72,7 @@ public class JacksonXmlRequestAdapter implements SerializeAdapter<Object> {
     }
 
     @Override
-    public HttpEntity doSerialize(Object data, String contentType) {
+    public HttpEntity createEntity(Object data, String contentType) {
         try {
             return new StringEntity(jackson.writeValueAsString(data), ContentType.APPLICATION_JSON);
         } catch (Exception e) {

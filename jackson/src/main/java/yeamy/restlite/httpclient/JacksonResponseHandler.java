@@ -49,7 +49,7 @@ public class JacksonResponseHandler<T> implements HttpClientResponseHandler<T> {
                 bos.write(buf, 0, l);
             }
             String json = bos.toString(charset);
-            return JacksonRequestAdapter.jackson.readValue(json, new TypeReference<T>() {
+            return JacksonRequestHandler.jackson.readValue(json, new TypeReference<T>() {
             });
         }
     }

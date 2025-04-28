@@ -1,9 +1,9 @@
 package yeamy.restlite.httpclient.apt;
 
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import yeamy.restlite.httpclient.HttpClientRequestBodyHandler;
+import yeamy.restlite.httpclient.NoHttpClientRequestBodyHandler;
 import yeamy.restlite.httpclient.NoHttpClientResponseHandler;
-import yeamy.restlite.httpclient.NoSerializeAdapter;
-import yeamy.restlite.httpclient.SerializeAdapter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -18,17 +18,17 @@ import java.lang.annotation.Target;
 public @interface HttpClientRequest {
 
     /**
-     * Override the serializeAdapter or keep it with empty string.
+     * Override the requestBodyHandler to serialize request body.
      *
-     * @return class implement SerializeAdapter serialize request body
-     * @see SerializeAdapter
+     * @return class implement HttpClientRequestBodyHandler
+     * @see HttpClientRequestBodyHandler
      */
-    Class<? extends SerializeAdapter> serializeAdapter() default NoSerializeAdapter.class;
+    Class<? extends HttpClientRequestBodyHandler> requestBodyHandler() default NoHttpClientRequestBodyHandler.class;
 
     /**
-     * Override the responseHandler or keep it with empty string.
+     * Override the responseHandler to deserialize response body.
      *
-     * @return class implement HttpClientResponseHandler handle response
+     * @return class implement HttpClientResponseHandler
      * @see HttpClientResponseHandler
      */
     Class<? extends HttpClientResponseHandler> responseHandler() default NoHttpClientResponseHandler.class;

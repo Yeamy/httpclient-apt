@@ -5,13 +5,13 @@ import org.apache.hc.core5.http.HttpEntity;
 /**
  * Adapter to serialize request data and deserialize data from response
  */
-public interface SerializeAdapter<T> {
+public interface HttpClientRequestBodyHandler<T> {
 
     /**
      * do serialize request data as body/multipart content
      *
      * @param data data to serialize
      */
-    HttpEntity doSerialize(T data, String contentType);
+    HttpEntity createEntity(T data, String contentType);
 
 }

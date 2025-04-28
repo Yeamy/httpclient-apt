@@ -1,9 +1,9 @@
 package yeamy.restlite.httpclient.apt;
 
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import yeamy.restlite.httpclient.HttpClientRequestBodyHandler;
+import yeamy.restlite.httpclient.NoHttpClientRequestBodyHandler;
 import yeamy.restlite.httpclient.NoHttpClientResponseHandler;
-import yeamy.restlite.httpclient.NoSerializeAdapter;
-import yeamy.restlite.httpclient.SerializeAdapter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Declare an interface to generate an implements class
  * <pre>{@code
  * @HttpClient(uri = "https://example.com")
- *     serializeAdapter = GsonRequestAdapter.class,
+ *     requestBodyHandler = GsonRequestAdapter.class,
  *     responseHandler = GsonResponseHandler.class
  * )
  * public interface ExampleClient {
@@ -48,10 +48,10 @@ public @interface HttpClient {
     boolean createConstant() default true;
 
     /**
-     * @return Class name of the SerializeAdapter.
-     * @see SerializeAdapter
+     * @return Class name of the HttpClientRequestBodyHandler.
+     * @see HttpClientRequestBodyHandler
      */
-    Class<? extends SerializeAdapter> serializeAdapter() default NoSerializeAdapter.class;
+    Class<? extends HttpClientRequestBodyHandler> requestBodyHandler() default NoHttpClientRequestBodyHandler.class;
 
     /**
      * Deserialize the response data from httpClient.

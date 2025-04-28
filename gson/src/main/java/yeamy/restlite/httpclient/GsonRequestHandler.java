@@ -6,8 +6,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.apache.hc.client5.http.entity.mime.ContentBody;
-import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -17,16 +15,16 @@ import java.math.BigDecimal;
 import java.sql.Time;
 
 /**
- * SerializeAdapter with Google gson.<br>
+ * HttpClientRequestBodyHandler with Google gson.<br>
  * date format: yyyy-MM-dd HH:mm:ss X
  * <pre>{@code
- * HttpClient(serializeAdapter = GsonRequestAdapter.class,
+ * HttpClient(requestBodyHandler = GsonRequestHandler.class,
  *            responseHandler = GsonResponseHandler.class)
  * public interface XXX {
  * }
  * }</pre>
  */
-public class GsonRequestAdapter implements SerializeAdapter<Object> {
+public class GsonRequestHandler implements HttpClientRequestBodyHandler<Object> {
     protected static Gson gson = new GsonBuilder()
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
@@ -74,7 +72,7 @@ public class GsonRequestAdapter implements SerializeAdapter<Object> {
             }).create();
 
     @Override
-    public HttpEntity doSerialize(Object data, String contentType) {
+    public HttpEntity createEntity(Object data, String contentType) {
         return new StringEntity(gson.toJson(data), ContentType.APPLICATION_JSON);
     }
 }

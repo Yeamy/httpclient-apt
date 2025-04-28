@@ -1,6 +1,6 @@
 package httpclient_apt.demo;
 
-import yeamy.restlite.httpclient.GsonRequestAdapter;
+import yeamy.restlite.httpclient.GsonRequestHandler;
 import yeamy.restlite.httpclient.GsonResponseHandler;
 import yeamy.restlite.httpclient.apt.HttpClient;
 import yeamy.restlite.httpclient.apt.HttpClientRequest;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @HttpClient(
         responseHandler = GsonResponseHandler.class,
-        serializeAdapter = GsonRequestAdapter.class,
+        requestBodyHandler = GsonRequestHandler.class,
         uri = "http://localhost:8080",
         maxTryTimes = 1,
         header = @Values(name = "user-agent", value = "custom-app/1.0"),
@@ -35,8 +35,7 @@ public interface DemoClient {
                  Map<?, String> m1, Map<String, List<String>> m2);
 
     @HttpClientRequest(uri = "/form",
-            header = @Values(name = "Content-Type", value = "application/x-www-form-urlencoded"),
-            body = @PartValues("a={b1}&b={b2}")
+            body = @PartValues(value = "a={b1}&b={b2}", contentType = "application/x-www-form-urlencoded")
     )
     String form(String b1, String b2);
 

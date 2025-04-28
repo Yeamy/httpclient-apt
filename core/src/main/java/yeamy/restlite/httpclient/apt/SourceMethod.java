@@ -8,8 +8,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -18,6 +16,9 @@ import java.util.Map;
 import static yeamy.restlite.httpclient.apt.Utils.*;
 
 class SourceMethod extends SourceFile {
+    private static final String T_HttpClientRequestBodyHandler = "yeamy.restlite.httpclient.HttpClientRequestBodyHandler";
+    private static final String T_NoHttpClientRequestBodyHandler = "yeamy.restlite.httpclient.NoHttpClientRequestBodyHandler";
+    private static final String T_NoHttpClientResponseHandler = "yeamy.restlite.httpclient.NoHttpClientResponseHandler";
 
     public SourceMethod(ProcessingEnvironment env, boolean hasInjectProvider, TypeElement type, HttpClient template) {
         super(env, hasInjectProvider, type, template);
@@ -286,27 +287,24 @@ class SourceMethod extends SourceFile {
             }
             break;
             default:
-                String serializeAdapter = serializeAdapter(req, this.serializeAdapter);
-                if (serializeAdapter.equals("yeamy.restlite.httpclient.NoSerializeAdapter")) return;
-                Elements utils = env.getElementUtils();
-                TypeElement te = utils.getTypeElement(serializeAdapter);
-                final String T_SerializeAdapter = "yeamy.restlite.httpclient.SerializeAdapter";
-                final int l = T_SerializeAdapter.length();
-                Types tUtils = env.getTypeUtils();
+                String requestBodyHandler = requestBodyHandler(req, this.requestBodyHandler);
+                if (requestBodyHandler.equals(T_NoHttpClientRequestBodyHandler)) return;
+                TypeElement te = elements.getTypeElement(requestBodyHandler);
+                final int l = T_HttpClientRequestBodyHandler.length();
                 for (TypeMirror m : te.getInterfaces()) {
                     String type = m.toString();
-                    if (!type.startsWith(T_SerializeAdapter)) continue;
+                    if (!type.startsWith(T_HttpClientRequestBodyHandler)) continue;
                     if (type.length() == l) break;
                     if (type.charAt(l) != '<') continue;
                     String varType = type.substring(l + 1, type.length() - 1);
-                    TypeMirror vt = utils.getTypeElement(varType).asType();
+                    TypeMirror vt = elements.getTypeElement(varType).asType();
                     TypeMirror pt = e.asType();
-                    if (tUtils.isAssignable(pt, vt)) break;
-                    printError(serializeAdapter + "cannot serialize type " + pt + " in " + this.type.getQualifiedName() + "." + method + "()");
+                    if (types.isAssignable(pt, vt)) break;
+                    printError(requestBodyHandler + "cannot serialize type " + pt + " in " + this.type.getQualifiedName() + "." + method + "()");
                     return;
                 }
-                content.append("req.setEntity(new ").append(imports(serializeAdapter))
-                        .append("().doSerialize(").append(pName).append(",\"").append(contentType).append("\"));");
+                content.append("req.setEntity(new ").append(imports(requestBodyHandler))
+                        .append("().createEntity(").append(pName).append(",\"").append(contentType).append("\"));");
         }
     }
 
@@ -387,33 +385,36 @@ class SourceMethod extends SourceFile {
                     printError(msg);
                     content.append("/*").append(msg).append("*/;");
                 } else {
-                    content.append(imports(serializeAdapter(req, this.serializeAdapter)))
+                    content.append(imports(requestBodyHandler(req, this.requestBodyHandler)))
                             .append("().serializeAsPart(").append(pName).append(",\"").append(contentType).append("\");");
                 }
         }
     }
 
-    private TypeMirror responseHandler(HttpClientRequest req) {
-        try {
-            Class<?> t = req.responseHandler();
-            return elements.getTypeElement(t.getName()).asType();
-        } catch (MirroredTypeException e) {
-            return e.getTypeMirror();
-        }
-    }
-
     private String responseHandler(HttpClientRequest req, TypeMirror fallback) {
-        TypeMirror t = responseHandler(req);
-        if (t.toString().equals("yeamy.restlite.httpclient.NoHttpClientResponseHandler")) {
+        TypeMirror t;
+        try {
+            Class<?> clz = req.responseHandler();
+            t = elements.getTypeElement(clz.getName()).asType();
+        } catch (MirroredTypeException e) {
+            t = e.getTypeMirror();
+        }
+        if (t.toString().equals(T_NoHttpClientResponseHandler)) {
             return fallback.toString();
         } else {
             return t.toString();
         }
     }
 
-    private String serializeAdapter(HttpClientRequest req, TypeMirror fallback) {
-        TypeMirror t = responseHandler(req);
-        if (t.toString().equals("yeamy.restlite.httpclient.NoHttpClientResponseHandler")) {
+    private String requestBodyHandler(HttpClientRequest req, TypeMirror fallback) {
+        TypeMirror t;
+        try {
+            Class<?> clz = req.requestBodyHandler();
+            t = elements.getTypeElement(clz.getName()).asType();
+        } catch (MirroredTypeException e) {
+            t = e.getTypeMirror();
+        }
+        if (t.toString().equals(T_NoHttpClientRequestBodyHandler)) {
             return fallback.toString();
         } else {
             return t.toString();

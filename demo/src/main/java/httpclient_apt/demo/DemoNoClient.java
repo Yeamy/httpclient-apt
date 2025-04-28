@@ -1,6 +1,6 @@
 package httpclient_apt.demo;
 
-import yeamy.restlite.httpclient.GsonRequestAdapter;
+import yeamy.restlite.httpclient.GsonRequestHandler;
 import yeamy.restlite.httpclient.GsonResponseHandler;
 import yeamy.restlite.httpclient.apt.HttpClient;
 import yeamy.restlite.httpclient.apt.HttpClientRequest;
@@ -17,7 +17,7 @@ public interface DemoNoClient {
 
     @HttpClientRequest(
             responseHandler = GsonResponseHandler.class,
-            serializeAdapter = GsonRequestAdapter.class,
+            requestBodyHandler = GsonRequestHandler.class,
             uri = "http://localhost:8080/a/{u1}?x={{u2}}",
             cookie = @Values(name = "v", value = "{c1}"),
             header = @Values(name = "h", value = "{h1}"),

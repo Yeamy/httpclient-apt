@@ -25,7 +25,7 @@ abstract class SourceFile {
     protected final Protocol protocol;
     protected final Values[] header, cookie;
     private final boolean createConstant;
-    protected final TypeMirror serializeAdapter, responseHandler;
+    protected final TypeMirror requestBodyHandler, responseHandler;
     private final ArrayList<ExecutableElement> methods = new ArrayList<>();
     private final HashMap<String, String> imports = new HashMap<>();
     private final int maxTryTimes;
@@ -34,7 +34,7 @@ abstract class SourceFile {
         HttpClient client = type.getAnnotation(HttpClient.class);
         if (client != null && template != null) {
             createConstant = client.createConstant();
-            serializeAdapter = serializeAdapter(client, template);
+            requestBodyHandler = requestBodyHandler(client, template);
             responseHandler = responseHandler(client, template);
             className = firstNotEmpty(client.className(), type.getQualifiedName() + "Impl");
             httpMethod = firstNotEmpty(client.method(), template.method());
@@ -45,7 +45,7 @@ abstract class SourceFile {
             maxTryTimes = firstGreaterThan(0, client.maxTryTimes(), template.maxTryTimes());
         } else if (template != null) {
             createConstant = true;
-            serializeAdapter = serializeAdapter(template);
+            requestBodyHandler = requestBodyHandler(template);
             responseHandler = responseHandler(template);
             className = type.getQualifiedName() + "Impl";
             httpMethod = template.method();
@@ -57,7 +57,7 @@ abstract class SourceFile {
         } else {
             assert client != null;
             createConstant = client.createConstant();
-            serializeAdapter = serializeAdapter(client);
+            requestBodyHandler = requestBodyHandler(client);
             responseHandler = responseHandler(client);
             className = firstNotEmpty(client.className(), type.getQualifiedName() + "Impl");
             httpMethod = client.method();
@@ -88,19 +88,19 @@ abstract class SourceFile {
         imports("org.apache.hc.core5.http.HttpVersion");
     }
 
-    private TypeMirror serializeAdapter(HttpClient client) {
+    private TypeMirror requestBodyHandler(HttpClient client) {
         try {
-            Class<?> t = client.serializeAdapter();
+            Class<?> t = client.requestBodyHandler();
             return elements.getTypeElement(t.getName()).asType();
         } catch (MirroredTypeException e) {
             return e.getTypeMirror();
         }
     }
 
-    private TypeMirror serializeAdapter(HttpClient client, HttpClient template) {
-        TypeMirror t = serializeAdapter(client);
-        if (t.toString().equals("yeamy.restlite.httpclient.NoSerializeAdapter")) {
-            return serializeAdapter(template);
+    private TypeMirror requestBodyHandler(HttpClient client, HttpClient template) {
+        TypeMirror t = requestBodyHandler(client);
+        if (t.toString().equals("yeamy.restlite.httpclient.NoHttpClientRequestBodyHandler")) {
+            return requestBodyHandler(template);
         } else {
             return t;
         }
@@ -199,9 +199,10 @@ abstract class SourceFile {
             sb.append('@').append(imports("yeamy.restlite.annotation.InjectProvider")).append("(provideFor=")
                     .append(imports(type.getQualifiedName().toString())).append(".class)");
         }
-        sb.append("public class ").append(className).append(" implements ").append(type.getSimpleName()).append("{");
+        String simpleName = className.substring(className.lastIndexOf('.') + 1);
+        sb.append("public class ").append(simpleName).append(" implements ").append(type.getSimpleName()).append("{");
         if (createConstant) {
-            sb.append("public static final ").append(className).append(" INSTANCE = new ").append(className).append("();");
+            sb.append("public static final ").append(simpleName).append(" INSTANCE = new ").append(simpleName).append("();");
         }
         sb.append(methods).append('}');
         try (OutputStream os = f.openOutputStream()) {

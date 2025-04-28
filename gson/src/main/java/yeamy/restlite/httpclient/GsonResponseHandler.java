@@ -49,7 +49,7 @@ public class GsonResponseHandler<T> implements HttpClientResponseHandler<T> {
                 bos.write(buf, 0, l);
             }
             String json = bos.toString(charset);
-            return GsonRequestAdapter.gson.fromJson(json, new TypeToken<T>() {
+            return GsonRequestHandler.gson.fromJson(json, new TypeToken<T>() {
             }.getType());
         }
 
