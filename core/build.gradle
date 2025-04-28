@@ -1,10 +1,9 @@
 plugins {
     id 'java-library'
 }
-sourceCompatibility = JavaVersion.VERSION_1_8
 
 group 'io.github.yeamy'
-version '1.0.4'
+version '1.1.0'
 
 repositories {
     mavenCentral()
@@ -23,13 +22,13 @@ dependencies {
 apply plugin: 'maven-publish'
 
 jar {// package code
-    archiveFileName = 'lib.jar'
+    archiveFileName = 'httpclient-apt-lib.jar'
 }
 
 tasks.register('generateSourceJar', Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
-    archiveFileName = 'lib-sources.jar'
+    archiveFileName = 'httpclient-apt-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
@@ -43,9 +42,9 @@ javadoc {// create document
 }
 tasks.register('generateJavadoc', Jar) { // package document as jar
     group = 'jar'
-    archiveFileName = 'lib-javadoc.jar'
+    archiveFileName = 'httpclient-apt-javadoc.jar'
     archiveClassifier.set('javadoc')
-    from "$buildDir/docs/javadoc"
+    from "$rootDir/docs/javadoc"
 }
 
 publishing {
