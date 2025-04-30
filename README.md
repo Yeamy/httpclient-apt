@@ -10,11 +10,11 @@ Take gradle as an example
 ```gradle
 dependencies {
     // with gson
-    implementation 'io.github.yeamy:httpclient-apt-gson:1.1.0'
+    implementation 'io.github.yeamy:httpclient-apt-gson:2.0.1'
     // or with jackson
-    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.1.0'
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:2.0.1'
     // or with jackson xml
-    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.1.0'
+    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:2.0.1'
 }
 ```
 

@@ -13,11 +13,11 @@
 ```gradle
 dependencies {
     // 使用gson
-    implementation 'io.github.yeamy:httpclient-apt-gson:1.1.0'
+    implementation 'io.github.yeamy:httpclient-apt-gson:2.0.1'
     // 或者使用jackson
-    //implementation 'io.github.yeamy:httpclient-apt-jackson:1.1.0'
+    //implementation 'io.github.yeamy:httpclient-apt-jackson:2.0.1'
     // 或者使用jackson xml
-    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:1.1.0'
+    //implementation 'io.github.yeamy:httpclient-apt-jacksonxml:2.0.1'
 }
 ```
 
