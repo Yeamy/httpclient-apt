@@ -28,6 +28,8 @@ class SourceMethod extends SourceFile {
         super(env, hasInjectProvider, type, null);
     }
 
+    private String reqName, cookieName;
+
     @Override
     protected void createMethodContent(StringBuilder content, ExecutableElement e,
                                        LinkedHashMap<String, VariableElement> params) {
@@ -36,16 +38,15 @@ class SourceMethod extends SourceFile {
             returnNull(content, e);
             return;
         }
+        reqName = variableName("req", params);
+        cookieName = variableName("cookie", params);
         String method = e.getSimpleName().toString();
         uri(content, req, method, params);
-        PartValues[] parts = req.body();
-        content.append("HttpUriRequestBase req = new HttpUriRequestBase(\"")
-                .append(firstNotEmpty(req.method(), httpMethod, parts.length > 0 ? "POST" : "GET"))
-                .append("\", URI.create(uri));");
         protocol(content, req);
         headerMap(content, req, method, params);
         header(content, req, method, params);
         cookie(content, req, method, params);
+        PartValues[] parts = req.body();
         if (parts.length == 1) {
             body(content, req, parts[0], method, params);
         } else if (parts.length > 1) {
@@ -58,7 +59,7 @@ class SourceMethod extends SourceFile {
             content.append("return null;/*").append(msg).append("*/");
         } else {
             int maxTryTimes = maxTryTimes(req.maxTryTimes());
-            content.append("return execute(req, new ")
+            content.append("return execute(").append(reqName).append(", new ")
                     .append(imports(responseHandler))
                     .append("<>(),").append(maxTryTimes).append(");");
         }
@@ -79,7 +80,10 @@ class SourceMethod extends SourceFile {
         }
         try {
             CharSequence sb = replaceArgs(uri, params);
-            content.append("String uri = ").append(sb).append(';');
+            PartValues[] parts = req.body();
+            content.append("HttpUriRequestBase ").append(reqName).append(" = new HttpUriRequestBase(\"")
+                    .append(firstNotEmpty(req.method(), httpMethod, parts.length > 0 ? "POST" : "GET"))
+                    .append("\", URI.create(").append(sb).append("));");
         } catch (ParamNotFoundException e) {
             content.append("return null;// ERROR");
             String msg = "Missing uri param '" + e.pName() + "': " + this.className + '.' + method;
@@ -123,7 +127,7 @@ class SourceMethod extends SourceFile {
     private void protocol(StringBuilder content, HttpClientRequest req) {
         Protocol protocol = firstNotEquals(Protocol.NOT_DEFINED, req.protocol(), this.protocol);
         if (protocol != Protocol.NOT_DEFINED) {
-            content.append("req.setVersion(HttpVersion.").append(protocol).append(");");
+            content.append(reqName).append(".setVersion(HttpVersion.").append(protocol).append(");");
         }
     }
 
@@ -175,13 +179,13 @@ class SourceMethod extends SourceFile {
                     printError(msg);
                     throw new RuntimeException(msg);
                 }
-                content.append("req.setHeader(\"")
+                content.append(reqName).append(".setHeader(\"")
                         .append(header.name())
                         .append("\", ")
                         .append(hName)
                         .append(");");
             } else {
-                content.append("req.setHeader(\"")
+                content.append(reqName).append(".setHeader(\"")
                         .append(header.name())
                         .append("\", \"")
                         .append(hName)
@@ -231,13 +235,13 @@ class SourceMethod extends SourceFile {
                     printError(msg);
                     throw new RuntimeException(msg);
                 }
-                temp.append("cookie.addCookie(new BasicClientCookie(\"")
+                temp.append(this.cookieName).append(".addCookie(new BasicClientCookie(\"")
                         .append(cookie.name())
                         .append("\", ")
                         .append(cName)
                         .append("));");
             } else {
-                temp.append("cookie.addCookie(new BasicClientCookie(\"")
+                temp.append(this.cookieName).append(".addCookie(new BasicClientCookie(\"")
                         .append(cookie.name())
                         .append("\", \"")
                         .append(cName)
@@ -245,9 +249,9 @@ class SourceMethod extends SourceFile {
             }
         }
         if (temp.length() > 0) {
-            content.append("BasicCookieStore cookie = new BasicCookieStore();");
+            content.append("BasicCookieStore ").append(this.cookieName).append(" = new BasicCookieStore();");
             content.append(temp);
-            temp.append("req.setHeader(\"Cookie\", cookie);");
+            content.append(reqName).append(".setHeader(\"Cookie\", cookie);");
         }
     }
 
@@ -308,13 +312,13 @@ class SourceMethod extends SourceFile {
                     printError(requestBodyHandler + "cannot serialize type " + pt + " in " + this.type.getQualifiedName() + "." + method + "()");
                     return;
                 }
-                content.append("req.setEntity(new ").append(imports(requestBodyHandler))
+                content.append(reqName).append(".setEntity(new ").append(imports(requestBodyHandler))
                         .append("().createEntity(").append(pName).append(",\"").append(contentType).append("\"));");
         }
     }
 
     private void bodyString(StringBuilder content, CharSequence pName, String contentType) {
-        content.append("req.setEntity(new ").append(imports("org.apache.hc.core5.http.io.entity.StringEntity"))
+        content.append(reqName).append(".setEntity(new ").append(imports("org.apache.hc.core5.http.io.entity.StringEntity"))
                 .append('(').append(pName);
         if (contentType.length() > 0) {
             content.append(',').append(imports("org.apache.hc.core5.http.ContentType"))
@@ -324,7 +328,7 @@ class SourceMethod extends SourceFile {
     }
 
     private void bodyBinary(StringBuilder content, String entity, String pName, String contentType) {
-        content.append("req.setEntity(new ").append(imports(entity)).append('(').append(pName)
+        content.append(reqName).append(".setEntity(new ").append(imports(entity)).append('(').append(pName)
                 .append(',').append(imports("org.apache.hc.core5.http.ContentType"));
         if (contentType.isEmpty()) {
             content.append(".DEFAULT_BINARY").append(')');
@@ -336,7 +340,7 @@ class SourceMethod extends SourceFile {
 
     private void multiPart(StringBuilder content, HttpClientRequest req, PartValues[] parts, String method,
                            LinkedHashMap<String, VariableElement> params) {
-        content.append("req.setEntity(")
+        content.append(reqName).append(".setEntity(")
                 .append(imports("org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder"))
                 .append(".create()");
         for (PartValues part : parts) {

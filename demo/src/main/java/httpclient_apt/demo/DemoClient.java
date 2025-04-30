@@ -39,6 +39,10 @@ public interface DemoClient {
     )
     String form(String b1, String b2);
 
+
+    @HttpClientRequest(uri = "/form/{req}/{cookie}")
+    String req(String req, String cookie);
+
     //    @HttpClientRequest(uri = "/a", method = "POST")
     String post(String a);
 }

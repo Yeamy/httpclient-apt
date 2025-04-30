@@ -242,4 +242,12 @@ abstract class SourceFile {
         int r = firstNotEquals(0, maxTryTimes, this.maxTryTimes);
         return r == 0 ? 3 : r;
     }
+
+    protected String variableName(String req, LinkedHashMap<String, VariableElement> params) {
+        if (!params.containsKey(req)) return req;
+        for (int i = 0; true; i++) {
+            String s = req + i;
+            if (!params.containsKey(req + i)) return s;
+        }
+    }
 }
