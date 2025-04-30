@@ -3,14 +3,27 @@ package yeamy.restlite.httpclient;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * A thin wrapper of Date, whit format {@code yyyy-MM-dd HH:mm:ss}
+ */
 public class DateTime extends Date {
 
-    private String str;
+    /**
+     * toString() cache value.
+     */
+    private transient String str;
 
+    /**
+     * Allocate with current timestamp
+     */
     public DateTime() {
         super();
     }
 
+    /**
+     * Allocate with the specified timestamp
+     * @param date the milliseconds since January 1, 1970, 00:00:00 GMT.
+     */
     public DateTime(long date) {
         super(date);
     }
@@ -21,6 +34,9 @@ public class DateTime extends Date {
         str = null;
     }
 
+    /**
+     * {@code yyyy-MM-dd HH:mm:ss} format string
+     */
     @Override
     public String toString() {
         if (str != null) return str;
