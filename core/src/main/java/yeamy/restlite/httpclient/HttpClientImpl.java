@@ -7,6 +7,7 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * http client executor
@@ -43,6 +44,7 @@ public class HttpClientImpl {
 
     private static final CloseableHttpClient client = HttpClients.createDefault();
     private static final int VERSION;
+
     static {
         boolean b = false;
         try {
@@ -61,9 +63,10 @@ public class HttpClientImpl {
      * @param s String to be translated. charset – the given charset
      * @return the translated String.
      */
+    @SuppressWarnings("deprecation")
     public static String encodeUrl(String s) {
         if (VERSION == 10) {
-            return URLEncoder.encode(s, Charset.defaultCharset());
+            return URLEncoder.encode(s, StandardCharsets.UTF_8);
         } else {
             return URLEncoder.encode(s);
         }

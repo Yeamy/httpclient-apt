@@ -4,27 +4,24 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.Calendar;
+import java.util.TimeZone;
 
-class DateTimeUtil {
+class DateParser {
 
     static Time parseTime(String time) throws IOException {
         try {
             char[] c = time.toCharArray();
-            int h = (c[0] - '0') * 10 + (c[1] - '0');
-            int m = (c[3] - '0') * 10 + (c[4] - '0');
-            int s = (c[6] - '0') * 10 + (c[7] - '0');
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY, h);
-            calendar.set(Calendar.MINUTE, m);
-            calendar.set(Calendar.SECOND, s);
-            return new Time(calendar.getTimeInMillis());
+            long ts = TimeZone.getDefault().getRawOffset()
+                    + (c[0] - '0') * 36000L
+                    + (c[1] - '0') * 3600L
+                    + (c[3] - '0') * 600L
+                    + (c[4] - '0') * 60L
+                    + (c[6] - '0') * 10L
+                    + (c[7] - '0');
+            return new Time(ts);
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
-    }
-
-    static String format(Time time) {
-        return time.toString();
     }
 
     private static Calendar parseDate(char[] c) {
@@ -48,11 +45,7 @@ class DateTimeUtil {
         }
     }
 
-    static String format(Date date) {
-        return date.toString();
-    }
-
-    static java.util.Date parseDateTime(String time) throws IOException {
+    static DateTime parseDateTime(String time) throws IOException {
         try {
             char[] c = time.toCharArray();
             Calendar calendar = parseDate(c);
@@ -62,38 +55,10 @@ class DateTimeUtil {
             calendar.set(Calendar.HOUR_OF_DAY, h);
             calendar.set(Calendar.MINUTE, m);
             calendar.set(Calendar.SECOND, s);
-            return calendar.getTime();
+            return new DateTime(calendar.getTimeInMillis());
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
-    }
-
-    static String format(java.util.Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int y = calendar.get(Calendar.YEAR);
-        int M = calendar.get(Calendar.MONTH) + 1;
-        int d = calendar.get(Calendar.DATE);
-        int h = calendar.get(Calendar.HOUR_OF_DAY);
-        int m = calendar.get(Calendar.MINUTE);
-        int s = calendar.get(Calendar.SECOND);
-        StringBuilder sb = new StringBuilder();
-        sb.append(y).append('-');
-        append(sb, M);
-        sb.append('-');
-        append(sb, d);
-        sb.append(' ');
-        append(sb, h);
-        sb.append(':');
-        append(sb, m);
-        sb.append(':');
-        append(sb, s);
-        return sb.toString();
-    }
-
-    private static void append(StringBuilder sb, int num) {
-        if (num < 10) sb.append('0');
-        sb.append(num);
     }
 
 }

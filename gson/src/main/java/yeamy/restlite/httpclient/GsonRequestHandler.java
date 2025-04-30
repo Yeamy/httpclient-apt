@@ -12,11 +12,12 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.Time;
+import java.time.OffsetDateTime;
 
 /**
  * HttpClientRequestBodyHandler with Google gson.<br>
- * date format: yyyy-MM-dd HH:mm:ss X
  * <pre>{@code
  * HttpClient(requestBodyHandler = GsonRequestHandler.class,
  *            responseHandler = GsonResponseHandler.class)
@@ -37,37 +38,48 @@ public class GsonRequestHandler implements HttpClientRequestBodyHandler<Object> 
                     return new BigDecimal(in.nextString());
                 }
             })
-            .registerTypeAdapter(java.util.Date.class, new TypeAdapter<java.util.Date>() {
+            .registerTypeAdapter(OffsetDateTime.class, new TypeAdapter<OffsetDateTime>() {
                 @Override
-                public void write(JsonWriter out, java.util.Date value) throws IOException {
-                    out.value(DateTimeUtil.format(value));
+                public void write(JsonWriter out, OffsetDateTime value) throws IOException {
+                    out.value(value.toString());
                 }
 
                 @Override
-                public java.util.Date read(JsonReader in) throws IOException {
-                    return DateTimeUtil.parseDateTime(in.nextString());
+                public OffsetDateTime read(JsonReader in) throws IOException {
+                    return OffsetDateTime.parse(in.nextString());
                 }
             })
-            .registerTypeAdapter(java.sql.Date.class, new TypeAdapter<java.sql.Date>() {
+            .registerTypeAdapter(DateTime.class, new TypeAdapter<DateTime>() {
                 @Override
-                public void write(JsonWriter out, java.sql.Date value) throws IOException {
-                    out.value(DateTimeUtil.format(value));
+                public void write(JsonWriter out, DateTime value) throws IOException {
+                    out.value(value.toString());
                 }
 
                 @Override
-                public java.sql.Date read(JsonReader in) throws IOException {
-                    return DateTimeUtil.parseDate(in.nextString());
+                public DateTime read(JsonReader in) throws IOException {
+                    return DateParser.parseDateTime(in.nextString());
+                }
+            })
+            .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
+                @Override
+                public void write(JsonWriter out, Date value) throws IOException {
+                    out.value(value.toString());
+                }
+
+                @Override
+                public Date read(JsonReader in) throws IOException {
+                    return DateParser.parseDate(in.nextString());
                 }
             })
             .registerTypeAdapter(Time.class, new TypeAdapter<Time>() {
                 @Override
                 public void write(JsonWriter out, Time value) throws IOException {
-                    out.value(DateTimeUtil.format(value));
+                    out.value(value.toString());
                 }
 
                 @Override
                 public Time read(JsonReader in) throws IOException {
-                    return DateTimeUtil.parseTime(in.nextString());
+                    return DateParser.parseTime(in.nextString());
                 }
             }).create();
 

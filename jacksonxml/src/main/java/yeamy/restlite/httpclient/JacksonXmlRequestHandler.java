@@ -14,12 +14,12 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.Time;
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 /**
  * HttpClientRequestBodyHandler with jackson.<br>
- * date format: yyyy-MM-dd HH:mm:ss X
  * <pre>{@code
  * @HttpClient(requestAdapter = "yeamy.restlite.httpclient.JacksonXmlRequestHandler")
  * public interface XXX {
@@ -33,43 +33,56 @@ public class JacksonXmlRequestHandler implements HttpClientRequestBodyHandler<Ob
 
     private static class DateFormatModule extends SimpleModule {
         public DateFormatModule() {
-            addSerializer(Time.class, new JsonSerializer<Time>() {
+            addSerializer(Time.class, new JsonSerializer<>() {
 
                 @Override
                 public void serialize(Time value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-                    gen.writeString(DateTimeUtil.format(value));
+                    gen.writeString(value.toString());
                 }
             });
-            addDeserializer(Time.class, new JsonDeserializer<Time>() {
+            addDeserializer(Time.class, new JsonDeserializer<>() {
                 @Override
                 public Time deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-                    return DateTimeUtil.parseTime(p.getValueAsString());
+                    return DateParser.parseTime(p.getValueAsString());
                 }
             });
-            addSerializer(java.sql.Date.class, new JsonSerializer<java.sql.Date>() {
-
-                @Override
-                public void serialize(java.sql.Date value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-                    gen.writeString(DateTimeUtil.format(value));
-                }
-            });
-            addDeserializer(java.sql.Date.class, new JsonDeserializer<java.sql.Date>() {
-                @Override
-                public java.sql.Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-                    return DateTimeUtil.parseDate(p.getValueAsString());
-                }
-            });
-            addSerializer(Date.class, new JsonSerializer<Date>() {
+            addSerializer(Date.class, new JsonSerializer<>() {
 
                 @Override
                 public void serialize(Date value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-                    gen.writeString(DateTimeUtil.format(value));
+                    gen.writeString(value.toString());
                 }
             });
-            addDeserializer(Date.class, new JsonDeserializer<Date>() {
+            addDeserializer(Date.class, new JsonDeserializer<>() {
                 @Override
                 public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-                    return DateTimeUtil.parseDateTime(p.getValueAsString());
+                    return DateParser.parseDate(p.getValueAsString());
+                }
+            });
+            addSerializer(DateTime.class, new JsonSerializer<>() {
+
+                @Override
+                public void serialize(DateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+                    gen.writeString(value.toString());
+                }
+            });
+            addDeserializer(DateTime.class, new JsonDeserializer<>() {
+                @Override
+                public DateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                    return DateParser.parseDateTime(p.getValueAsString());
+                }
+            });
+            addSerializer(OffsetDateTime.class, new JsonSerializer<>() {
+
+                @Override
+                public void serialize(OffsetDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+                    gen.writeString(value.toString());
+                }
+            });
+            addDeserializer(OffsetDateTime.class, new JsonDeserializer<>() {
+                @Override
+                public OffsetDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                    return OffsetDateTime.parse(p.getValueAsString());
                 }
             });
         }
