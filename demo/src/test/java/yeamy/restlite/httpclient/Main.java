@@ -13,10 +13,10 @@ public class Main {
         final FastDateFormat DATE_TIME_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
         String time = "10:22:33";
-        int times = 10000000;
+        int times = 5000000;
         long l = System.currentTimeMillis();
         for (int i = 0; i < times; i++) {
-            DateTimeUtil.parseTime(time);
+            DateParser.parseTime(time);
         }
         long tmp = System.currentTimeMillis();
         long t1 = tmp - l;
@@ -29,7 +29,7 @@ public class Main {
         l = tmp;
         String date = "2025-04-24";
         for (int i = 0; i < times; i++) {
-            DateTimeUtil.parseDate(date);
+            DateParser.parseDate(date);
         }
         tmp = System.currentTimeMillis();
         long t3 = tmp - l;
@@ -42,7 +42,7 @@ public class Main {
         l = tmp;
         String dateTime = "2025-04-24 11:00:33";
         for (int i = 0; i < times; i++) {
-            DateTimeUtil.parseDateTime(dateTime);
+            DateParser.parseDateTime(dateTime);
         }
         tmp = System.currentTimeMillis();
         long t5 = tmp - l;
