@@ -45,4 +45,8 @@ public interface DemoClient {
 
     //    @HttpClientRequest(uri = "/a", method = "POST")
     String post(String a);
+
+    default String ok(String a) {
+        return null;
+    }
 }

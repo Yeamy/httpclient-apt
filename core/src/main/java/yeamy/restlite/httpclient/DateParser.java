@@ -11,14 +11,13 @@ class DateParser {
     static Time parseTime(String time) throws IOException {
         try {
             char[] c = time.toCharArray();
-            long ts = TimeZone.getDefault().getRawOffset()
-                    + (c[0] - '0') * 36000L
-                    + (c[1] - '0') * 3600L
-                    + (c[3] - '0') * 600L
-                    + (c[4] - '0') * 60L
-                    + (c[6] - '0') * 10L
-                    + (c[7] - '0');
-            return new Time(ts);
+            long ts = (c[0] - '0') * 36000_000L
+                    + (c[1] - '0') * 3600_000L
+                    + (c[3] - '0') * 600_000L
+                    + (c[4] - '0') * 60_000L
+                    + (c[6] - '0') * 10_000L
+                    + (c[7] - '0') * 1_000L;
+            return new Time(ts - TimeZone.getDefault().getRawOffset());
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
