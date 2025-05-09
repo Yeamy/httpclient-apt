@@ -30,56 +30,61 @@ public class GsonRequestHandler implements HttpClientRequestBodyHandler<Object> 
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
                 public void write(JsonWriter out, BigDecimal value) throws IOException {
-                    out.value(value.toPlainString());
+                    out.value(value == null ? null : value.toPlainString());
                 }
 
                 @Override
                 public BigDecimal read(JsonReader in) throws IOException {
-                    return new BigDecimal(in.nextString());
+                    String num = in.nextString();
+                    return num == null ? null : new BigDecimal(num);
                 }
             })
             .registerTypeAdapter(OffsetDateTime.class, new TypeAdapter<OffsetDateTime>() {
                 @Override
                 public void write(JsonWriter out, OffsetDateTime value) throws IOException {
-                    out.value(value.toString());
+                    out.value(value == null ? null : value.toString());
                 }
 
                 @Override
                 public OffsetDateTime read(JsonReader in) throws IOException {
-                    return OffsetDateTime.parse(in.nextString());
+                    String value = in.nextString();
+                    return value == null ? null : OffsetDateTime.parse(value);
                 }
             })
             .registerTypeAdapter(DateTime.class, new TypeAdapter<DateTime>() {
                 @Override
                 public void write(JsonWriter out, DateTime value) throws IOException {
-                    out.value(value.toString());
+                    out.value(value == null ? null : value.toString());
                 }
 
                 @Override
                 public DateTime read(JsonReader in) throws IOException {
-                    return DateParser.parseDateTime(in.nextString());
+                    String value = in.nextString();
+                    return value == null ? null : DateParser.parseDateTime(value);
                 }
             })
             .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
                 @Override
                 public void write(JsonWriter out, Date value) throws IOException {
-                    out.value(value.toString());
+                    out.value(value == null ? null : value.toString());
                 }
 
                 @Override
                 public Date read(JsonReader in) throws IOException {
-                    return DateParser.parseDate(in.nextString());
+                    String value = in.nextString();
+                    return value == null ? null : DateParser.parseDate(value);
                 }
             })
             .registerTypeAdapter(Time.class, new TypeAdapter<Time>() {
                 @Override
                 public void write(JsonWriter out, Time value) throws IOException {
-                    out.value(value.toString());
+                    out.value(value == null ? null : value.toString());
                 }
 
                 @Override
                 public Time read(JsonReader in) throws IOException {
-                    return DateParser.parseTime(in.nextString());
+                    String value = in.nextString();
+                    return value == null ? null : DateParser.parseTime(value);
                 }
             }).create();
 
